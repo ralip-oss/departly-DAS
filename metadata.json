@@ -1,0 +1,6 @@
+{
+  "name": "Departly - Reactive Intelligent Departure & Travel Assistant",
+  "description": "Smart departure management and automated delay communication with real-time transit telemetry and hands-free AI voice dispatch.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
