@@ -76,7 +76,8 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
     return () => {
       stopSpeechRecognition();
     };
-  }, [isOpen, targetTrip]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const startSpeechRecognition = () => {
     setIsListening(true);

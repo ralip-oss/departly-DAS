@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import {
   TripEvent,
@@ -311,6 +311,29 @@ export default function App() {
     );
   };
 
+  // Stable fallback trip reference to prevent infinite re-renders in VoiceAIDispatchHUD
+  const fallbackTrip = useMemo<TripEvent>(() => ({
+    id: 'temp-trip',
+    title: profile.language === 'en' ? 'Upcoming Meeting' : 'Próxima Reunião Comercial',
+    clientName: profile.language === 'en' ? 'Client' : 'Cliente Convidado',
+    attendees: [{ name: 'Cliente', role: 'Cliente', email: 'cliente@empresa.pt' }],
+    originAddress: profile.language === 'en' ? 'Departure Location' : 'Local de Partida',
+    destinationAddress: profile.language === 'en' ? 'Destination Address' : 'Local de Destino',
+    scheduledTime: '15:00',
+    durationMin: 60,
+    travelTimeMin: 20,
+    smartBufferMin: 12,
+    departureTime: '14:28',
+    trafficCondition: 'heavy',
+    status: 'upcoming',
+    calendarSource: 'Google Calendar',
+    calendarBlockInjected: true,
+    transitMode: 'car',
+    distanceKm: 8.5,
+  }), [profile.language]);
+
+  const stableTargetTrip = voiceHUDTargetTrip || trips[0] || fallbackTrip;
+
   // Stage 1: Splash Screen
   if (appStage === 'splash') {
     return (
@@ -528,28 +551,7 @@ export default function App() {
           <VoiceAIDispatchHUD
             isOpen={isVoiceHUDOpen}
             onClose={() => setIsVoiceHUDOpen(false)}
-            targetTrip={
-              voiceHUDTargetTrip ||
-              trips[0] || {
-                id: 'temp-trip',
-                title: profile.language === 'en' ? 'Upcoming Meeting' : 'Próxima Reunião Comercial',
-                clientName: profile.language === 'en' ? 'Client' : 'Cliente Convidado',
-                attendees: [{ name: 'Cliente', role: 'Cliente', email: 'cliente@empresa.pt' }],
-                originAddress: profile.language === 'en' ? 'Departure Location' : 'Local de Partida',
-                destinationAddress: profile.language === 'en' ? 'Destination Address' : 'Local de Destino',
-                scheduledTime: '15:00',
-                durationMin: 60,
-                travelTimeMin: 20,
-                smartBufferMin: 12,
-                departureTime: '14:28',
-                trafficCondition: 'heavy',
-                status: 'upcoming',
-                calendarSource: 'Google Calendar',
-                calendarBlockInjected: true,
-                transitMode: 'car',
-                distanceKm: 8.5,
-              }
-            }
+            targetTrip={stableTargetTrip}
             onDispatchSuccess={handleVoiceDispatchSuccess}
           />
 
