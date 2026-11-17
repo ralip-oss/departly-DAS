@@ -55,25 +55,34 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
   const isEn = language === 'en';
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  if (!isOpen || !trip) return null;
-
-  const [currentBuffer, setCurrentBuffer] = useState(trip.smartBufferMin);
+  const [currentBuffer, setCurrentBuffer] = useState(trip?.smartBufferMin ?? 10);
   const [autoAdjustActive, setAutoAdjustActive] = useState(true);
   const [liveTrafficSeverity, setLiveTrafficSeverity] = useState<'clear' | 'moderate' | 'heavy'>(
-    trip.trafficCondition === 'heavy' || trip.trafficCondition === 'incident'
+    trip?.trafficCondition === 'heavy' || trip?.trafficCondition === 'incident'
       ? 'heavy'
-      : trip.trafficCondition === 'moderate'
+      : trip?.trafficCondition === 'moderate'
       ? 'moderate'
       : 'clear'
   );
   const [isUpdatingTraffic, setIsUpdatingTraffic] = useState(false);
   const [autoAdjustNotice, setAutoAdjustNotice] = useState<string | null>(null);
 
-  // Sync buffer state when trip changes
+  // Sync buffer and traffic state when trip changes
   useEffect(() => {
+    if (!trip) return;
     setCurrentBuffer(trip.smartBufferMin);
+    setLiveTrafficSeverity(
+      trip.trafficCondition === 'heavy' || trip.trafficCondition === 'incident'
+        ? 'heavy'
+        : trip.trafficCondition === 'moderate'
+        ? 'moderate'
+        : 'clear'
+    );
+    setShowDeleteConfirm(false);
+    setAutoAdjustNotice(null);
   }, [trip]);
+
+  if (!isOpen || !trip) return null;
 
   // Real-time automatic adjustment of Smart Buffer based on Directions live traffic
   const applyLiveTrafficTelemetry = (severity: 'clear' | 'moderate' | 'heavy') => {
