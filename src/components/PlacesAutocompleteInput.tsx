@@ -309,12 +309,12 @@ export const PlacesAutocompleteInput: React.FC<PlacesAutocompleteInputProps> = (
           </span>
         )}
 
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <label
-            className={`absolute left-0 pointer-events-none transition-all duration-150 origin-top-left ${
+            className={`absolute left-0 max-w-full truncate pointer-events-none transition-all duration-150 origin-top-left ${
               focused || hasValue
-                ? '-top-2 text-[10px] font-mono-telemetry font-semibold uppercase tracking-wider text-[#0284C7] dark:text-[#38BDF8]'
-                : 'top-1 text-sm text-slate-400 dark:text-slate-500 font-body'
+                ? '-top-1.5 text-[10px] leading-none font-mono-telemetry font-semibold uppercase tracking-wider text-[#0284C7] dark:text-[#38BDF8]'
+                : 'top-1.5 text-sm leading-5 text-slate-400 dark:text-slate-500 font-body'
             }`}
           >
             {label}
@@ -335,7 +335,7 @@ export const PlacesAutocompleteInput: React.FC<PlacesAutocompleteInputProps> = (
             }}
             onBlur={() => setFocused(false)}
             placeholder={focused ? placeholder : ''}
-            className="w-full bg-transparent text-sm font-body text-[#0F172A] dark:text-white outline-none pt-2 pr-6"
+            className="w-full bg-transparent text-sm font-body text-[#0F172A] dark:text-white outline-none pt-2.5 pr-6 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             autoComplete="off"
           />
         </div>

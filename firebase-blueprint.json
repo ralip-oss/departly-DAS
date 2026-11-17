@@ -1,0 +1,294 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated Departly user profile, transit preferences, and UI calibration settings.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the account owner."
+        },
+        "username": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique public/login username chosen during account creation."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "Display name shown in greetings and profile."
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60,
+          "description": "User role label."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 160,
+          "description": "User email address."
+        },
+        "avatar": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Optional avatar URL or initials string."
+        },
+        "defaultBufferMin": {
+          "type": "number",
+          "description": "Default safety buffer in minutes (5-30)."
+        },
+        "primaryTransitMode": {
+          "type": "string",
+          "enum": ["car", "metro", "motorcycle"],
+          "description": "Default transit mode."
+        },
+        "voiceTone": {
+          "type": "string",
+          "enum": ["Empathetic & Professional", "Direct & Concise", "Executive Formal"],
+          "description": "Voice AI communication tone."
+        },
+        "autoSendDelayNotice": {
+          "type": "boolean"
+        },
+        "soundAlerts": {
+          "type": "boolean"
+        },
+        "hapticFeedback": {
+          "type": "boolean"
+        },
+        "themeMode": {
+          "type": "string",
+          "enum": ["light", "dark", "adaptive"]
+        },
+        "language": {
+          "type": "string",
+          "enum": ["pt", "en"]
+        },
+        "timeOfDaySimulation": {
+          "type": "string",
+          "enum": ["auto", "morning", "afternoon", "evening"]
+        },
+        "gdprCompliantData": {
+          "type": "boolean"
+        },
+        "endToEndEncryption": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "username",
+        "name",
+        "role",
+        "email",
+        "avatar",
+        "defaultBufferMin",
+        "primaryTransitMode",
+        "voiceTone",
+        "autoSendDelayNotice",
+        "soundAlerts",
+        "hapticFeedback",
+        "themeMode",
+        "language",
+        "timeOfDaySimulation",
+        "gdprCompliantData",
+        "endToEndEncryption",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UsernameLookup": {
+      "title": "UsernameLookup",
+      "description": "Username-to-email lookup record enabling login by username or email.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "username": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 160
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "username", "email", "createdAt"]
+    },
+    "TripEvent": {
+      "title": "TripEvent",
+      "description": "Scheduled trip/meeting event with Google Maps telemetry and smart buffer.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "clientName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "clientCompany": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "attendees": {
+          "type": "array",
+          "description": "Bounded list of meeting attendees (max 20)."
+        },
+        "originAddress": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "destinationAddress": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "originCoordinates": {
+          "type": "object"
+        },
+        "destinationCoordinates": {
+          "type": "object"
+        },
+        "scheduledTime": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 10
+        },
+        "durationMin": {
+          "type": "number"
+        },
+        "travelTimeMin": {
+          "type": "number"
+        },
+        "smartBufferMin": {
+          "type": "number"
+        },
+        "departureTime": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 10
+        },
+        "trafficCondition": {
+          "type": "string",
+          "enum": ["clear", "moderate", "heavy", "incident"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["upcoming", "depart_now", "in_transit", "delayed", "completed"]
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "calendarSource": {
+          "type": "string",
+          "enum": ["Google Calendar", "Microsoft 365", "Apple iCal"]
+        },
+        "calendarBlockInjected": {
+          "type": "boolean"
+        },
+        "transitMode": {
+          "type": "string",
+          "enum": ["car", "metro", "motorcycle"]
+        },
+        "distanceKm": {
+          "type": "number"
+        },
+        "delayOffsetMin": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "title",
+        "clientName",
+        "attendees",
+        "originAddress",
+        "destinationAddress",
+        "scheduledTime",
+        "durationMin",
+        "travelTimeMin",
+        "smartBufferMin",
+        "departureTime",
+        "trafficCondition",
+        "status",
+        "calendarSource",
+        "calendarBlockInjected",
+        "transitMode",
+        "distanceKm",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user account profile and calibration settings owned by {userId}."
+    },
+    "/usernames/{usernameLower}": {
+      "schema": { "$ref": "#/entities/UsernameLookup" },
+      "description": "Unique lowercase username lookup record mapping username to user email and uid."
+    },
+    "/users/{userId}/trips/{tripId}": {
+      "schema": { "$ref": "#/entities/TripEvent" },
+      "description": "User's scheduled trips and departure telemetry owned by {userId}."
+    }
+  }
+}

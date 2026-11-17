@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChronoState } from '../types';
-import { Compass, AlertTriangle, Check, RefreshCw, Clock } from 'lucide-react';
+import {
+  Compass,
+  AlertTriangle,
+  Check,
+  RefreshCw,
+  Clock,
+  MapPin,
+  Car,
+  Navigation,
+  Route,
+  CornerUpRight,
+  LocateFixed,
+  Map as MapIcon,
+} from 'lucide-react';
 
 interface ChronoPulseProps {
   state?: ChronoState;
   size?: 'sm' | 'md' | 'lg' | 'hero';
   countdownMinutes?: number;
+  cycleMapIcons?: boolean;
   label?: string;
   sublabel?: string;
   interactive?: boolean;
@@ -14,10 +28,22 @@ interface ChronoPulseProps {
   className?: string;
 }
 
+const CYCLING_MAP_ICONS = [
+  { key: 'pin', Icon: MapPin },
+  { key: 'car', Icon: Car },
+  { key: 'nav', Icon: Navigation },
+  { key: 'compass', Icon: Compass },
+  { key: 'route', Icon: Route },
+  { key: 'turn', Icon: CornerUpRight },
+  { key: 'locate', Icon: LocateFixed },
+  { key: 'map', Icon: MapIcon },
+];
+
 export const ChronoPulse: React.FC<ChronoPulseProps> = ({
   state = 'calm',
   size = 'md',
   countdownMinutes,
+  cycleMapIcons = false,
   label,
   sublabel,
   interactive = false,
@@ -25,6 +51,7 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
   className = '',
 }) => {
   const [rotation, setRotation] = useState(0);
+  const [iconIndex, setIconIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -32,6 +59,14 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
     }, 40);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!cycleMapIcons) return;
+    const iconTimer = setInterval(() => {
+      setIconIndex((prev) => (prev + 1) % CYCLING_MAP_ICONS.length);
+    }, 1250);
+    return () => clearInterval(iconTimer);
+  }, [cycleMapIcons]);
 
   // Dimension presets
   const sizeMap = {
@@ -69,7 +104,7 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
       glowSize: 'inset-4 blur-2xl',
       textSize: 'text-3xl sm:text-4xl',
       subtextSize: 'text-xs sm:text-sm',
-      iconSize: 42,
+      iconSize: 44,
     },
   };
 
@@ -118,6 +153,9 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
       badgeText: 'text-emerald-700 dark:text-emerald-300',
     },
   }[state];
+
+  const ActiveMapIcon = CYCLING_MAP_ICONS[iconIndex].Icon;
+  const activeMapIconKey = CYCLING_MAP_ICONS[iconIndex].key;
 
   return (
     <div
@@ -241,7 +279,18 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
         {/* Central Core Element */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-center pointer-events-none">
           <AnimatePresence mode="wait">
-            {state === 'success' ? (
+            {cycleMapIcons ? (
+              <motion.div
+                key={activeMapIconKey}
+                initial={{ opacity: 0, scale: 0.65, y: 6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.65, y: -6 }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
+                className="flex flex-col items-center justify-center text-[#0284C7] dark:text-[#38BDF8]"
+              >
+                <ActiveMapIcon size={config.iconSize} strokeWidth={2.2} />
+              </motion.div>
+            ) : state === 'success' ? (
               <motion.div
                 key="success"
                 initial={{ scale: 0, rotate: -45 }}

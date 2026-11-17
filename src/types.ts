@@ -51,6 +51,8 @@ export interface NotificationItem {
 }
 
 export interface UserProfile {
+  uid?: string;
+  username?: string;
   name: string;
   role: string;
   email: string;

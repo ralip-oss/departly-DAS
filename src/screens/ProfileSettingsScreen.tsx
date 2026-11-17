@@ -21,10 +21,17 @@ import {
 } from 'lucide-react';
 import { Toggle, BufferSlider, Button, FloatingInput } from '../components/UIComponents';
 import { translations } from '../i18n';
+import {
+  isValidUsernameFormat,
+  loadUserProfileFromFirestore,
+  loginWithEmailOrUsername,
+  registerAccountWithUsername,
+} from '../firebase';
 
 interface ProfileSettingsScreenProps {
   profile: UserProfile;
   onUpdateProfile: (updated: Partial<UserProfile>) => void;
+  onLogout?: () => void;
   timeOfDay: TimeOfDay;
   onChangeTimeOfDay: (time: TimeOfDay) => void;
   onToggleDemoState: (stateType: 'empty' | 'loading' | 'error' | 'none') => void;
@@ -34,41 +41,131 @@ interface ProfileSettingsScreenProps {
 export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   profile,
   onUpdateProfile,
+  onLogout,
   timeOfDay,
   onChangeTimeOfDay,
   onToggleDemoState,
   currentDemoState,
 }) => {
   const t = translations[profile.language || 'pt'];
+  const isEn = profile.language === 'en';
   const [authModal, setAuthModal] = useState<'none' | 'login' | 'signup'>('none');
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
-  const [authName, setAuthName] = useState('');
+  const [authUsername, setAuthUsername] = useState('');
   const [authFeedback, setAuthFeedback] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
 
-  const isGuest = profile.name === 'Guest Account';
+  const isGuest = !profile.uid && profile.name === 'Guest Account';
 
-  const handleAuthSubmit = (type: 'login' | 'signup') => {
-    if (!authEmail.includes('@')) {
-      setAuthFeedback('Por favor insira um endereço de e-mail válido.');
+  const mapAuthError = (err: unknown): string => {
+    const raw = err instanceof Error ? err.message : String(err);
+    if (raw === 'INVALID_USERNAME') {
+      return isEn
+        ? 'Username must be 3–32 characters (letters, numbers, _ or -).'
+        : 'O nome de utilizador deve ter 3–32 caracteres (letras, números, _ ou -).';
+    }
+    if (raw === 'USERNAME_TAKEN') {
+      return isEn
+        ? 'This username is already taken.'
+        : 'Este nome de utilizador já está registado.';
+    }
+    if (raw === 'USER_NOT_FOUND' || raw.includes('auth/invalid-credential') || raw.includes('auth/wrong-password') || raw.includes('auth/user-not-found')) {
+      return isEn
+        ? 'Invalid credentials. Check your email/username and password.'
+        : 'Credenciais inválidas. Verifique o e-mail/utilizador e a palavra-passe.';
+    }
+    if (raw.includes('auth/email-already-in-use')) {
+      return isEn ? 'This email is already registered.' : 'Este e-mail já está registado.';
+    }
+    if (raw.includes('auth/weak-password')) {
+      return isEn ? 'Password must be at least 6 characters.' : 'A palavra-passe deve ter pelo menos 6 caracteres.';
+    }
+    if (raw.includes('auth/operation-not-allowed') || raw.includes('auth/configuration-not-found')) {
+      return isEn
+        ? 'Enable Email/Password sign-in in Firebase Console Authentication > Providers.'
+        : 'Ative o provedor E-mail/Palavra-passe no Firebase Console (Authentication > Providers).';
+    }
+    return isEn ? 'Authentication failed. Please try again.' : 'Erro de autenticação. Tente novamente.';
+  };
+
+  const handleAuthSubmit = async (type: 'login' | 'signup') => {
+    setAuthFeedback(null);
+    if (type === 'signup') {
+      if (!isValidUsernameFormat(authUsername)) {
+        setAuthFeedback(mapAuthError('INVALID_USERNAME'));
+        return;
+      }
+      if (!authEmail.includes('@')) {
+        setAuthFeedback(isEn ? 'Please enter a valid email address.' : 'Por favor insira um endereço de e-mail válido.');
+        return;
+      }
+      if (authPassword.length < 6) {
+        setAuthFeedback(mapAuthError('auth/weak-password'));
+        return;
+      }
+      setAuthLoading(true);
+      try {
+        const { profile: created } = await registerAccountWithUsername({
+          username: authUsername,
+          email: authEmail,
+          password: authPassword,
+          baseProfile: profile,
+        });
+        onUpdateProfile(created);
+        setAuthModal('none');
+      } catch (err) {
+        setAuthFeedback(mapAuthError(err));
+      } finally {
+        setAuthLoading(false);
+      }
       return;
     }
-    const displayName = type === 'signup' ? (authName || 'Utilizador Departly') : (authName || authEmail.split('@')[0]);
-    onUpdateProfile({
-      name: displayName,
-      email: authEmail,
-      role: 'Membro Departly',
-    });
-    setAuthFeedback(null);
-    setAuthModal('none');
+
+    if (!authEmail.trim() || !authPassword) {
+      setAuthFeedback(
+        isEn
+          ? 'Enter your email or username and password.'
+          : 'Insira o seu e-mail ou nome de utilizador e a palavra-passe.'
+      );
+      return;
+    }
+    setAuthLoading(true);
+    try {
+      const user = await loginWithEmailOrUsername({
+        identifier: authEmail,
+        password: authPassword,
+      });
+      const loaded = await loadUserProfileFromFirestore(user.uid);
+      onUpdateProfile(
+        loaded || {
+          uid: user.uid,
+          username: user.displayName || authEmail.split('@')[0],
+          name: user.displayName || authEmail.split('@')[0],
+          email: user.email || '',
+          role: 'Membro Departly',
+        }
+      );
+      setAuthModal('none');
+    } catch (err) {
+      setAuthFeedback(mapAuthError(err));
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   const handleLogoutToGuest = () => {
-    onUpdateProfile({
-      name: 'Guest Account',
-      email: '',
-      role: 'Convidado',
-    });
+    if (onLogout) {
+      onLogout();
+    } else {
+      onUpdateProfile({
+        uid: undefined,
+        username: undefined,
+        name: 'Guest Account',
+        email: '',
+        role: 'Convidado',
+      });
+    }
   };
 
   return (
@@ -489,26 +586,36 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
             </div>
 
             <div className="space-y-3">
-              {authModal === 'signup' && (
+              {authModal === 'signup' ? (
+                <>
+                  <FloatingInput
+                    label={isEn ? 'Username' : 'Nome de Utilizador'}
+                    placeholder={isEn ? 'e.g. joao_mendes' : 'ex: joao_mendes'}
+                    value={authUsername}
+                    onChange={(e) => setAuthUsername(e.target.value)}
+                    icon={<User size={16} />}
+                  />
+                  <FloatingInput
+                    label={isEn ? 'Email Address' : 'Endereço de E-mail'}
+                    placeholder="nome@empresa.pt"
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    icon={<Mail size={16} />}
+                  />
+                </>
+              ) : (
                 <FloatingInput
-                  label="Nome Completo"
-                  placeholder="Ex: João Mendes"
-                  value={authName}
-                  onChange={(e) => setAuthName(e.target.value)}
+                  label={isEn ? 'Email or Username' : 'E-mail ou Nome de Utilizador'}
+                  placeholder={isEn ? 'email@company.pt or username' : 'email@empresa.pt ou utilizador'}
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  icon={<User size={16} />}
                 />
               )}
 
               <FloatingInput
-                label="Endereço de E-mail"
-                placeholder="nome@empresa.pt"
-                type="email"
-                value={authEmail}
-                onChange={(e) => setAuthEmail(e.target.value)}
-                icon={<Mail size={16} />}
-              />
-
-              <FloatingInput
-                label="Palavra-passe"
+                label={isEn ? 'Password' : 'Palavra-passe'}
                 type="password"
                 placeholder="••••••••"
                 value={authPassword}
@@ -526,30 +633,43 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
             <Button
               variant="primary"
               className="w-full"
+              isLoading={authLoading}
               onClick={() => handleAuthSubmit(authModal)}
             >
-              {authModal === 'signup' ? 'Concluir Registo' : 'Entrar na Conta'}
+              {authModal === 'signup'
+                ? isEn
+                  ? 'Create Account'
+                  : 'Concluir Registo'
+                : isEn
+                ? 'Sign In'
+                : 'Entrar na Conta'}
             </Button>
 
             <div className="pt-2 text-center text-xs text-slate-500 dark:text-slate-400">
               {authModal === 'signup' ? (
                 <span>
-                  Já tem conta?{' '}
+                  {isEn ? 'Already have an account?' : 'Já tem conta?'}{' '}
                   <button
-                    onClick={() => setAuthModal('login')}
+                    onClick={() => {
+                      setAuthFeedback(null);
+                      setAuthModal('login');
+                    }}
                     className="text-[#0284C7] dark:text-[#38BDF8] font-semibold hover:underline"
                   >
-                    Fazer Login
+                    {isEn ? 'Sign In' : 'Fazer Login'}
                   </button>
                 </span>
               ) : (
                 <span>
-                  Novo no Departly?{' '}
+                  {isEn ? 'New to Departly?' : 'Novo no Departly?'}{' '}
                   <button
-                    onClick={() => setAuthModal('signup')}
+                    onClick={() => {
+                      setAuthFeedback(null);
+                      setAuthModal('signup');
+                    }}
                     className="text-[#0284C7] dark:text-[#38BDF8] font-semibold hover:underline"
                   >
-                    Criar Conta
+                    {isEn ? 'Create an Account' : 'Criar Conta'}
                   </button>
                 </span>
               )}

@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { APIProvider } from '@vis.gl/react-google-maps';
+import { onAuthStateChanged } from 'firebase/auth';
 import {
   TripEvent,
   UserProfile,
@@ -18,7 +19,18 @@ import {
   INITIAL_TRIPS,
   INITIAL_NOTIFICATIONS,
 } from './mockData';
+import {
+  auth,
+  deleteTripFromFirestore,
+  loadUserProfileFromFirestore,
+  logoutFirebaseUser,
+  saveTripToFirestore,
+  subscribeUserTrips,
+  updateTripFieldsInFirestore,
+  updateUserProfileInFirestore,
+} from './firebase';
 import { SplashScreen } from './screens/SplashScreen';
+import { AuthScreen } from './screens/AuthScreen';
 import { OnboardingScreen } from './screens/OnboardingScreen';
 import { DashboardScreen } from './screens/DashboardScreen';
 import { TripListScreen } from './screens/TripListScreen';
@@ -43,8 +55,12 @@ const GOOGLE_MAPS_API_KEY =
   'AIzaSyC2Xf1uEQW-AeXj83Yhtaiw_lYWP83uZ3c';
 
 export default function App() {
-  // App flow stage: 'splash' | 'onboarding' | 'app'
-  const [appStage, setAppStage] = useState<'splash' | 'onboarding' | 'app'>('splash');
+  // App flow stage: 'splash' | 'auth' | 'onboarding' | 'app'
+  const [appStage, setAppStage] = useState<'splash' | 'auth' | 'onboarding' | 'app'>('splash');
+  const [authMode, setAuthMode] = useState<'register' | 'login'>('register');
+  const [authUid, setAuthUid] = useState<string | null>(null);
+  const appStageRef = useRef(appStage);
+  appStageRef.current = appStage;
 
   // Navigation tab
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
@@ -84,6 +100,42 @@ export default function App() {
     window.addEventListener('gmp-quota-exceeded', handleQuotaExceeded);
     return () => window.removeEventListener('gmp-quota-exceeded', handleQuotaExceeded);
   }, []);
+
+  // Listen to Firebase Authentication state & load persisted profile
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setAuthUid(firebaseUser.uid);
+        try {
+          const loaded = await loadUserProfileFromFirestore(firebaseUser.uid);
+          if (loaded) {
+            setProfile((prev) => ({
+              ...prev,
+              ...loaded,
+            }));
+          }
+          // If returning with an active persisted session on splash, go straight to app
+          if (appStageRef.current === 'splash') {
+            setAppStage('app');
+          }
+        } catch (err) {
+          console.error('Failed to restore user profile:', err);
+        }
+      } else {
+        setAuthUid(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Subscribe to user's Firestore trips when authenticated
+  useEffect(() => {
+    if (!authUid) return;
+    const unsubscribe = subscribeUserTrips(authUid, (cloudTrips) => {
+      setTrips(cloudTrips);
+    });
+    return () => unsubscribe();
+  }, [authUid]);
 
   // Real life live clock updating every second
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -166,6 +218,9 @@ export default function App() {
           : t
       )
     );
+    if (authUid) {
+      updateTripFieldsInFirestore(authUid, tripId, { status: 'completed' }).catch(console.error);
+    }
 
     addToast(
       'Partida Confirmada',
@@ -175,6 +230,9 @@ export default function App() {
         setTrips((prev) =>
           prev.map((t) => (t.id === tripId ? { ...t, status: 'upcoming' as const } : t))
         );
+        if (authUid) {
+          updateTripFieldsInFirestore(authUid, tripId, { status: 'upcoming' }).catch(console.error);
+        }
       }
     );
   };
@@ -206,6 +264,13 @@ export default function App() {
           : t
       )
     );
+    if (authUid) {
+      updateTripFieldsInFirestore(authUid, active.id, {
+        trafficCondition: 'heavy',
+        delayOffsetMin: 14,
+        notes: 'Incidente grave reportado no Eixo Norte-Sul (+14m retenção)',
+      }).catch(console.error);
+    }
 
     addToast(
       'Alerta: Retenção Severa Detetada (+14m)',
@@ -222,6 +287,9 @@ export default function App() {
   // Handler: Create New Trip
   const handleCreateTrip = (newTrip: TripEvent) => {
     setTrips((prev) => [newTrip, ...prev]);
+    if (authUid) {
+      saveTripToFirestore(authUid, newTrip).catch(console.error);
+    }
 
     const newNotif: NotificationItem = {
       id: `notif-${Date.now()}`,
@@ -245,6 +313,9 @@ export default function App() {
   // Handler: Delete Trip
   const handleDeleteTrip = (tripId: string) => {
     setTrips((prev) => prev.filter((t) => t.id !== tripId));
+    if (authUid) {
+      deleteTripFromFirestore(authUid, tripId).catch(console.error);
+    }
     if (selectedTrip?.id === tripId) {
       setSelectedTrip(null);
       setIsDetailOpen(false);
@@ -260,6 +331,7 @@ export default function App() {
 
   // Handler: Update smart buffer for a specific trip
   const handleUpdateBuffer = (tripId: string, newBuffer: number) => {
+    let calculatedDepForCloud: string | undefined;
     setTrips((prev) =>
       prev.map((t) => {
         if (t.id === tripId) {
@@ -269,6 +341,7 @@ export default function App() {
           const depH = Math.floor((depMin + 1440) % 1440 / 60);
           const depM = (depMin + 1440) % 60;
           const calculatedDeparture = `${String(depH).padStart(2, '0')}:${String(depM).padStart(2, '0')}`;
+          calculatedDepForCloud = calculatedDeparture;
           return {
             ...t,
             smartBufferMin: newBuffer,
@@ -278,6 +351,12 @@ export default function App() {
         return t;
       })
     );
+    if (authUid && calculatedDepForCloud) {
+      updateTripFieldsInFirestore(authUid, tripId, {
+        smartBufferMin: newBuffer,
+        departureTime: calculatedDepForCloud,
+      }).catch(console.error);
+    }
 
     addToast(
       'Margem Atualizada',
@@ -311,35 +390,42 @@ export default function App() {
     );
   };
 
-  // Stable fallback trip reference to prevent infinite re-renders in VoiceAIDispatchHUD
-  const fallbackTrip = useMemo<TripEvent>(() => ({
-    id: 'temp-trip',
-    title: profile.language === 'en' ? 'Upcoming Meeting' : 'Próxima Reunião Comercial',
-    clientName: profile.language === 'en' ? 'Client' : 'Cliente Convidado',
-    attendees: [{ name: 'Cliente', role: 'Cliente', email: 'cliente@empresa.pt' }],
-    originAddress: profile.language === 'en' ? 'Departure Location' : 'Local de Partida',
-    destinationAddress: profile.language === 'en' ? 'Destination Address' : 'Local de Destino',
-    scheduledTime: '15:00',
-    durationMin: 60,
-    travelTimeMin: 20,
-    smartBufferMin: 12,
-    departureTime: '14:28',
-    trafficCondition: 'heavy',
-    status: 'upcoming',
-    calendarSource: 'Google Calendar',
-    calendarBlockInjected: true,
-    transitMode: 'car',
-    distanceKm: 8.5,
-  }), [profile.language]);
-
-  const stableTargetTrip = voiceHUDTargetTrip || trips[0] || fallbackTrip;
-
   // Stage 1: Splash Screen
   if (appStage === 'splash') {
     return (
       <SplashScreen
-        onComplete={() => setAppStage('onboarding')}
-        onSkipToDashboard={() => setAppStage('app')}
+        language={profile.language}
+        onCreateAccount={() => {
+          setAuthMode('register');
+          setAppStage('auth');
+        }}
+        onLogin={() => {
+          setAuthMode('login');
+          setAppStage('auth');
+        }}
+      />
+    );
+  }
+
+  // Stage 1.5: Account Creation / Login Screen (Firebase Auth + Firestore)
+  if (appStage === 'auth') {
+    return (
+      <AuthScreen
+        initialMode={authMode}
+        baseProfile={profile}
+        language={profile.language}
+        onBack={() => setAppStage('splash')}
+        onAuthSuccess={(signedInProfile, isNewAccount) => {
+          setProfile((prev) => ({ ...prev, ...signedInProfile }));
+          if (signedInProfile.uid) {
+            setAuthUid(signedInProfile.uid);
+          }
+          if (isNewAccount) {
+            setAppStage('onboarding');
+          } else {
+            setAppStage('app');
+          }
+        }}
       />
     );
   }
@@ -351,6 +437,12 @@ export default function App() {
         initialProfile={{ ...profile, theme: resolvedTheme }}
         onComplete={(updated) => {
           setProfile((p) => ({ ...p, ...updated }));
+          if (authUid) {
+            updateUserProfileInFirestore(authUid, {
+              defaultBufferMin: updated.defaultBufferMin,
+              primaryTransitMode: updated.primaryTransitMode,
+            }).catch(console.error);
+          }
           setAppStage('app');
           addToast(
             'Configuração Concluída',
@@ -515,9 +607,23 @@ export default function App() {
                 {currentTab === 'profile' && (
                   <ProfileSettingsScreen
                     profile={{ ...profile, theme: resolvedTheme }}
-                    onUpdateProfile={(updated) =>
-                      setProfile((prev) => ({ ...prev, ...updated }))
-                    }
+                    onUpdateProfile={(updated) => {
+                      setProfile((prev) => ({ ...prev, ...updated }));
+                      const targetUid = updated.uid || authUid;
+                      if (targetUid && !updated.uid) {
+                        updateUserProfileInFirestore(targetUid, updated).catch(console.error);
+                      }
+                      if (updated.uid) {
+                        setAuthUid(updated.uid);
+                      }
+                    }}
+                    onLogout={async () => {
+                      await logoutFirebaseUser().catch(console.error);
+                      setAuthUid(null);
+                      setProfile(INITIAL_USER_PROFILE);
+                      setTrips([]);
+                      setAppStage('splash');
+                    }}
                     timeOfDay={timeOfDay}
                     onChangeTimeOfDay={(tod) => setTimeOfDay(tod)}
                     onToggleDemoState={(st) => setDemoState(st)}
@@ -551,7 +657,28 @@ export default function App() {
           <VoiceAIDispatchHUD
             isOpen={isVoiceHUDOpen}
             onClose={() => setIsVoiceHUDOpen(false)}
-            targetTrip={stableTargetTrip}
+            targetTrip={
+              voiceHUDTargetTrip ||
+              trips[0] || {
+                id: 'temp-trip',
+                title: profile.language === 'en' ? 'Upcoming Meeting' : 'Próxima Reunião Comercial',
+                clientName: profile.language === 'en' ? 'Client' : 'Cliente Convidado',
+                attendees: [{ name: 'Cliente', role: 'Cliente', email: 'cliente@empresa.pt' }],
+                originAddress: profile.language === 'en' ? 'Departure Location' : 'Local de Partida',
+                destinationAddress: profile.language === 'en' ? 'Destination Address' : 'Local de Destino',
+                scheduledTime: '15:00',
+                durationMin: 60,
+                travelTimeMin: 20,
+                smartBufferMin: 12,
+                departureTime: '14:28',
+                trafficCondition: 'heavy',
+                status: 'upcoming',
+                calendarSource: 'Google Calendar',
+                calendarBlockInjected: true,
+                transitMode: 'car',
+                distanceKm: 8.5,
+              }
+            }
             onDispatchSuccess={handleVoiceDispatchSuccess}
           />
 

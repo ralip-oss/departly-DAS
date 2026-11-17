@@ -92,6 +92,9 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
   className = '',
   readOnly,
   onChange,
+  placeholder,
+  onFocus,
+  onBlur,
   ...props
 }) => {
   const [focused, setFocused] = useState(false);
@@ -116,13 +119,13 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
           </span>
         )}
 
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <label
             htmlFor={inputId}
-            className={`absolute left-0 pointer-events-none transition-all duration-150 origin-top-left ${
+            className={`absolute left-0 max-w-full truncate pointer-events-none transition-all duration-150 origin-top-left ${
               focused || hasValue
-                ? '-top-2 text-[10px] font-mono-telemetry font-semibold uppercase tracking-wider text-[#0284C7] dark:text-[#38BDF8]'
-                : 'top-1 text-sm text-slate-400 dark:text-slate-500 font-body'
+                ? '-top-1.5 text-[10px] leading-none font-mono-telemetry font-semibold uppercase tracking-wider text-[#0284C7] dark:text-[#38BDF8]'
+                : 'top-1.5 text-sm leading-5 text-slate-400 dark:text-slate-500 font-body'
             }`}
           >
             {label}
@@ -133,15 +136,16 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
             value={value}
             readOnly={isReadOnly}
             onChange={onChange}
+            placeholder={focused ? placeholder : ''}
             onFocus={(e) => {
               setFocused(true);
-              props.onFocus?.(e);
+              onFocus?.(e);
             }}
             onBlur={(e) => {
               setFocused(false);
-              props.onBlur?.(e);
+              onBlur?.(e);
             }}
-            className="w-full bg-transparent text-sm font-body text-[#0F172A] dark:text-white outline-none pt-2"
+            className="w-full bg-transparent text-sm font-body text-[#0F172A] dark:text-white outline-none pt-2.5 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             {...props}
           />
         </div>

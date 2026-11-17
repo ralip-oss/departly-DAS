@@ -1,0 +1,211 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Reusable Helpers
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidUsernameId(usernameLower) {
+      return usernameLower is string && usernameLower.size() >= 3 && usernameLower.size() <= 32 && usernameLower.matches('^[a-z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Validation Blueprint: UserProfile
+    function isValidUserProfile(data) {
+      return data.keys().hasAll([
+        'uid', 'username', 'name', 'role', 'email', 'avatar',
+        'defaultBufferMin', 'primaryTransitMode', 'voiceTone',
+        'autoSendDelayNotice', 'soundAlerts', 'hapticFeedback',
+        'themeMode', 'language', 'timeOfDaySimulation',
+        'gdprCompliantData', 'endToEndEncryption', 'createdAt', 'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'uid', 'username', 'name', 'role', 'email', 'avatar',
+        'defaultBufferMin', 'primaryTransitMode', 'voiceTone',
+        'autoSendDelayNotice', 'soundAlerts', 'hapticFeedback',
+        'themeMode', 'language', 'timeOfDaySimulation',
+        'gdprCompliantData', 'endToEndEncryption', 'createdAt', 'updatedAt'
+      ])
+      && data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 && data.uid.matches('^[a-zA-Z0-9_\\-]+$')
+      && data.username is string && data.username.size() >= 3 && data.username.size() <= 32 && data.username.matches('^[a-zA-Z0-9_\\-]+$')
+      && data.name is string && data.name.size() >= 1 && data.name.size() <= 80
+      && data.role is string && data.role.size() >= 1 && data.role.size() <= 60
+      && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+      && data.avatar is string && data.avatar.size() <= 300
+      && data.defaultBufferMin is number && data.defaultBufferMin >= 1 && data.defaultBufferMin <= 60
+      && data.primaryTransitMode in ['car', 'metro', 'motorcycle']
+      && data.voiceTone in ['Empathetic & Professional', 'Direct & Concise', 'Executive Formal']
+      && data.autoSendDelayNotice is bool
+      && data.soundAlerts is bool
+      && data.hapticFeedback is bool
+      && data.themeMode in ['light', 'dark', 'adaptive']
+      && data.language in ['pt', 'en']
+      && data.timeOfDaySimulation in ['auto', 'morning', 'afternoon', 'evening']
+      && data.gdprCompliantData is bool
+      && data.endToEndEncryption is bool
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: UsernameLookup
+    function isValidUsernameLookup(data) {
+      return data.keys().hasAll(['uid', 'username', 'email', 'createdAt'])
+      && data.keys().hasOnly(['uid', 'username', 'email', 'createdAt'])
+      && data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 && data.uid.matches('^[a-zA-Z0-9_\\-]+$')
+      && data.username is string && data.username.size() >= 3 && data.username.size() <= 32 && data.username.matches('^[a-zA-Z0-9_\\-]+$')
+      && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+      && data.createdAt is timestamp;
+    }
+
+    // Validation Blueprint: TripEvent
+    function isValidTripEvent(data) {
+      return data.keys().hasAll([
+        'id', 'userId', 'title', 'clientName', 'attendees',
+        'originAddress', 'destinationAddress', 'scheduledTime',
+        'durationMin', 'travelTimeMin', 'smartBufferMin', 'departureTime',
+        'trafficCondition', 'status', 'calendarSource',
+        'calendarBlockInjected', 'transitMode', 'distanceKm',
+        'createdAt', 'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'id', 'userId', 'title', 'clientName', 'clientCompany', 'attendees',
+        'originAddress', 'destinationAddress', 'originCoordinates', 'destinationCoordinates',
+        'scheduledTime', 'durationMin', 'travelTimeMin', 'smartBufferMin', 'departureTime',
+        'trafficCondition', 'status', 'notes', 'calendarSource',
+        'calendarBlockInjected', 'transitMode', 'distanceKm', 'delayOffsetMin',
+        'createdAt', 'updatedAt'
+      ])
+      && data.id is string && data.id.size() >= 1 && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$')
+      && data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 && data.userId.matches('^[a-zA-Z0-9_\\-]+$')
+      && data.title is string && data.title.size() >= 1 && data.title.size() <= 120
+      && data.clientName is string && data.clientName.size() >= 1 && data.clientName.size() <= 100
+      && (!('clientCompany' in data) || (data.clientCompany is string && data.clientCompany.size() <= 100))
+      && data.attendees is list && data.attendees.size() <= 20
+      && (data.attendees.size() == 0 || data.attendees[0] is map)
+      && data.originAddress is string && data.originAddress.size() >= 1 && data.originAddress.size() <= 300
+      && data.destinationAddress is string && data.destinationAddress.size() >= 1 && data.destinationAddress.size() <= 300
+      && (!('originCoordinates' in data) || (data.originCoordinates is map && data.originCoordinates.keys().hasOnly(['lat', 'lng']) && data.originCoordinates.lat is number && data.originCoordinates.lng is number))
+      && (!('destinationCoordinates' in data) || (data.destinationCoordinates is map && data.destinationCoordinates.keys().hasOnly(['lat', 'lng']) && data.destinationCoordinates.lat is number && data.destinationCoordinates.lng is number))
+      && data.scheduledTime is string && data.scheduledTime.size() >= 4 && data.scheduledTime.size() <= 10
+      && data.durationMin is number && data.durationMin >= 0 && data.durationMin <= 1440
+      && data.travelTimeMin is number && data.travelTimeMin >= 0 && data.travelTimeMin <= 1440
+      && data.smartBufferMin is number && data.smartBufferMin >= 0 && data.smartBufferMin <= 120
+      && data.departureTime is string && data.departureTime.size() >= 4 && data.departureTime.size() <= 10
+      && data.trafficCondition in ['clear', 'moderate', 'heavy', 'incident']
+      && data.status in ['upcoming', 'depart_now', 'in_transit', 'delayed', 'completed']
+      && (!('notes' in data) || (data.notes is string && data.notes.size() <= 500))
+      && data.calendarSource in ['Google Calendar', 'Microsoft 365', 'Apple iCal']
+      && data.calendarBlockInjected is bool
+      && data.transitMode in ['car', 'metro', 'motorcycle']
+      && data.distanceKm is number && data.distanceKm >= 0 && data.distanceKm <= 10000
+      && (!('delayOffsetMin' in data) || (data.delayOffsetMin is number && data.delayOffsetMin >= 0 && data.delayOffsetMin <= 600))
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    // Username Lookup Collection (allows exact-key lookup for username login; listing forbidden)
+    match /usernames/{usernameLower} {
+      allow get: if isValidUsernameId(usernameLower);
+      allow list: if false;
+      allow create: if isSignedIn()
+        && isValidUsernameId(usernameLower)
+        && isValidUsernameLookup(incoming())
+        && incoming().uid == request.auth.uid
+        && incoming().username.lower() == usernameLower
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isSignedIn()
+        && isValidUsernameId(usernameLower)
+        && existing().uid == request.auth.uid;
+    }
+
+    // User Profiles Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create: if isSignedIn()
+        && isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming())
+        && incoming().uid == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isSignedIn()
+        && isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid
+        && incoming().username == existing().username
+        && incoming().email == existing().email
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'role', 'avatar', 'defaultBufferMin', 'primaryTransitMode',
+          'voiceTone', 'autoSendDelayNotice', 'soundAlerts', 'hapticFeedback',
+          'themeMode', 'language', 'timeOfDaySimulation',
+          'gdprCompliantData', 'endToEndEncryption', 'updatedAt'
+        ]);
+      allow delete: if isSignedIn() && isOwner(userId) && isValidId(userId);
+
+      // User Trips Subcollection (Master Gate checks parent user doc existence)
+      match /trips/{tripId} {
+        allow get: if isSignedIn() && isOwner(userId) && isValidId(userId) && isValidId(tripId);
+        allow list: if isSignedIn() && isOwner(userId) && isValidId(userId) && resource.data.userId == request.auth.uid;
+        allow create: if isSignedIn()
+          && isValidId(userId)
+          && isValidId(tripId)
+          && isOwner(userId)
+          && isValidTripEvent(incoming())
+          && incoming().userId == request.auth.uid
+          && incoming().id == tripId
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && exists(/databases/$(database)/documents/users/$(userId));
+        allow update: if isSignedIn()
+          && isValidId(userId)
+          && isValidId(tripId)
+          && isOwner(userId)
+          && isValidTripEvent(incoming())
+          && incoming().userId == existing().userId
+          && incoming().id == existing().id
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && exists(/databases/$(database)/documents/users/$(userId))
+          && (
+            (incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+            (incoming().diff(existing()).affectedKeys().hasOnly(['smartBufferMin', 'departureTime', 'updatedAt'])) ||
+            (incoming().diff(existing()).affectedKeys().hasOnly(['trafficCondition', 'delayOffsetMin', 'notes', 'updatedAt'])) ||
+            (incoming().diff(existing()).affectedKeys().hasOnly([
+              'title', 'clientName', 'clientCompany', 'attendees',
+              'originAddress', 'destinationAddress', 'originCoordinates', 'destinationCoordinates',
+              'scheduledTime', 'durationMin', 'travelTimeMin', 'smartBufferMin', 'departureTime',
+              'trafficCondition', 'status', 'notes', 'calendarBlockInjected', 'transitMode',
+              'distanceKm', 'delayOffsetMin', 'updatedAt'
+            ]))
+          );
+        allow delete: if isSignedIn() && isOwner(userId) && isValidId(userId) && isValidId(tripId);
+      }
+    }
+  }
+}
