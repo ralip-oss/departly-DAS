@@ -684,7 +684,11 @@ export default function App() {
 
           {/* OVERLAY: TRIP DETAIL MODAL WITH GOOGLE MAPS */}
           <TripDetailModal
-            trip={selectedTrip}
+            trip={
+              selectedTrip
+                ? trips.find((t) => t.id === selectedTrip.id) || selectedTrip
+                : null
+            }
             isOpen={isDetailOpen}
             onClose={() => {
               setIsDetailOpen(false);

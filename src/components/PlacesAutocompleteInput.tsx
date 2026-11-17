@@ -31,6 +31,7 @@ interface PlacesAutocompleteInputProps {
   helperText?: string;
   className?: string;
   language?: AppLanguage;
+  respectBottomNav?: boolean;
 }
 
 export const PlacesAutocompleteInput: React.FC<PlacesAutocompleteInputProps> = ({
@@ -44,6 +45,7 @@ export const PlacesAutocompleteInput: React.FC<PlacesAutocompleteInputProps> = (
   helperText,
   className = '',
   language = 'pt',
+  respectBottomNav = true,
 }) => {
   const isEn = language === 'en';
   const placesLib = useMapsLibrary('places');
@@ -51,12 +53,57 @@ export const PlacesAutocompleteInput: React.FC<PlacesAutocompleteInputProps> = (
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [listMaxHeight, setListMaxHeight] = useState<number>(176);
+  const [openUpward, setOpenUpward] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sessionTokenRef = useRef<any>(null);
   const geocoderRef = useRef<any>(null);
   // Ref flag to completely prevent re-opening dropdown after choosing a suggestion
   const isSelectionActionRef = useRef<boolean>(false);
+
+  // Dynamically cap dropdown height so it always ends cleanly above the bottom navigation bar
+  useEffect(() => {
+    if (!showDropdown) return;
+
+    const updateMaxHeight = () => {
+      const container = containerRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      let bottomBoundary = window.innerHeight - 16;
+
+      if (respectBottomNav) {
+        const bottomNavEl = document.querySelector('[data-bottom-nav="true"]');
+        if (bottomNavEl) {
+          // Leave clearance for the 64px bottom bar + 20px protruding center Voicebot button
+          bottomBoundary = Math.min(bottomBoundary, bottomNavEl.getBoundingClientRect().top - 24);
+        } else {
+          bottomBoundary = Math.min(bottomBoundary, window.innerHeight - 92);
+        }
+      }
+
+      // Reserve ~40px for dropdown header + 6px top offset
+      const availableBelow = Math.floor(bottomBoundary - rect.bottom - 46);
+      const topBoundary = 72; // header bar height clearance
+      const availableAbove = Math.floor(rect.top - topBoundary - 46);
+
+      if (availableBelow < 96 && availableAbove > availableBelow) {
+        setOpenUpward(true);
+        setListMaxHeight(Math.max(72, Math.min(180, availableAbove)));
+      } else {
+        setOpenUpward(false);
+        setListMaxHeight(Math.max(44, Math.min(180, availableBelow)));
+      }
+    };
+
+    updateMaxHeight();
+    window.addEventListener('resize', updateMaxHeight);
+    window.addEventListener('scroll', updateMaxHeight, true);
+    return () => {
+      window.removeEventListener('resize', updateMaxHeight);
+      window.removeEventListener('scroll', updateMaxHeight, true);
+    };
+  }, [showDropdown, respectBottomNav, suggestions.length]);
 
   // Initialize Places Autocomplete Session Token (Places API New)
   useEffect(() => {
@@ -293,7 +340,10 @@ export const PlacesAutocompleteInput: React.FC<PlacesAutocompleteInputProps> = (
   const hasValue = value.length > 0;
 
   return (
-    <div ref={containerRef} className={`relative flex flex-col w-full ${className}`}>
+    <div
+      ref={containerRef}
+      className={`relative flex flex-col w-full ${showDropdown ? 'z-30' : ''} ${className}`}
+    >
       <div
         className={`relative flex items-center min-h-[52px] px-3.5 pt-3 pb-1 rounded-xl bg-white dark:bg-[#131D2E] border transition-all duration-200 ${
           error
@@ -366,18 +416,25 @@ export const PlacesAutocompleteInput: React.FC<PlacesAutocompleteInputProps> = (
 
       {/* RECOMENDAÇÕES GOOGLE MAPS PLACES DROPDOWN */}
       {showDropdown && suggestions.length > 0 && (
-        <div className="absolute top-[calc(100%+6px)] left-0 right-0 z-50 overflow-hidden rounded-2xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] shadow-2xl divide-y divide-slate-100 dark:divide-slate-800/60 animate-in fade-in slide-in-from-top-2 duration-150">
-          <div className="px-3.5 py-2 bg-slate-50 dark:bg-slate-900/80 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
-            <span className="font-mono-telemetry text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-              <MapPin size={12} className="text-[#29B6F6]" />
-              {isEn ? 'Google Maps Places Suggestions' : 'Sugestões Google Maps Places'}
+        <div
+          className={`absolute ${
+            openUpward ? 'bottom-[calc(100%+6px)]' : 'top-[calc(100%+6px)]'
+          } left-0 right-0 z-30 overflow-hidden rounded-2xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] shadow-2xl divide-y divide-slate-100 dark:divide-slate-800/60`}
+        >
+          <div className="px-3.5 py-2 bg-slate-50 dark:bg-slate-900/80 flex flex-wrap items-center justify-between gap-1.5 border-b border-slate-100 dark:border-slate-800">
+            <span className="font-mono-telemetry text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 min-w-0">
+              <MapPin size={12} className="text-[#29B6F6] shrink-0" />
+              <span className="truncate">{isEn ? 'Google Maps Places Suggestions' : 'Sugestões Google Maps Places'}</span>
             </span>
-            <span className="text-[9px] font-mono-telemetry text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded">
+            <span className="text-[9px] font-mono-telemetry text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">
               {isEn ? 'Direct GPS' : 'GPS Direto'}
             </span>
           </div>
 
-          <ul className="max-h-56 overflow-y-auto py-1">
+          <ul
+            className="overflow-y-auto py-1"
+            style={{ maxHeight: `${listMaxHeight}px` }}
+          >
             {suggestions.map((item) => (
               <li key={item.id}>
                 <button

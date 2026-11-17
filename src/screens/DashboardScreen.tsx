@@ -71,14 +71,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   });
   const activeTrip = sortedUpcoming[0] || trips[0];
 
-  // Dynamic real-time calculation of departure countdown
+  // Dynamic real-time calculation of departure countdown (minute precision)
+  const currentMinuteStamp = Math.floor(currentTime.getTime() / 60000);
   const minutesUntilDeparture = activeTrip
     ? (() => {
         const [h, m] = (activeTrip.departureTime || '12:00').split(':').map(Number);
         if (isNaN(h) || isNaN(m)) return 0;
-        const targetMin = h * 60 + m;
-        const currentMin = currentTime.getHours() * 60 + currentTime.getMinutes();
-        return targetMin - currentMin;
+        const depDate = new Date(currentTime);
+        depDate.setHours(h, m, 0, 0);
+        return Math.floor(depDate.getTime() / 60000) - currentMinuteStamp;
       })()
     : 0;
 
@@ -146,7 +147,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <div className="flex items-center gap-2.5">
               <ChronoPulse state="scanning" size="sm" />
               <span className="font-mono-telemetry text-xs font-semibold text-[#0284C7] dark:text-[#38BDF8]">
-                Recalibrando radares de trânsito em tempo real...
+                {isEn ? 'Recalibrating live traffic radar...' : 'Recalibrando radares de trânsito em tempo real...'}
               </span>
             </div>
           </motion.div>
@@ -155,12 +156,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
       {/* Greeting Header & Quick Actions */}
       <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="px-2 py-0.5 rounded-full bg-[#E1F5FE] dark:bg-[#003852] border border-[#B3E5FC] dark:border-sky-800 font-mono-telemetry text-[9px] font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="px-2 py-0.5 rounded-full bg-[#E1F5FE] dark:bg-[#003852] border border-[#B3E5FC] dark:border-sky-800 font-mono-telemetry text-[9px] font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider max-w-full truncate">
               {timeContent.tag.split('//')[0]}
             </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           </div>
           <h1 className="font-headline font-bold text-xl sm:text-2xl text-[#0F172A] dark:text-white mt-1 tracking-tight truncate">
             {timeContent.greeting}
@@ -196,66 +197,70 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           HERO CARD: ACTIVE TRIP OR CLEAN EMPTY RADAR
           ========================================================= */}
       {hasTrips && activeTrip ? (
-        <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] p-5 shadow-sm flex flex-col gap-4">
+        <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] p-4 sm:p-5 shadow-sm flex flex-col gap-4">
           {/* Subtle Ambient Radial Glow */}
           <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#29B6F6]/10 dark:bg-[#29B6F6]/5 rounded-full blur-2xl pointer-events-none" />
 
           {/* Top Pill / Status */}
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <span className="font-mono-telemetry text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800 min-w-0">
+            <span className="font-mono-telemetry text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider min-w-0">
               {timeContent.heroMetricLabel}
             </span>
 
             <div
-              className={`px-2.5 py-0.5 rounded-full font-mono-telemetry text-[11px] font-bold flex items-center gap-1.5 ${
+              className={`px-2.5 py-0.5 rounded-full font-mono-telemetry text-[10px] sm:text-[11px] font-bold inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 activeTrip?.trafficCondition === 'heavy' || activeTrip?.trafficCondition === 'incident'
                   ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 border border-rose-200 dark:border-rose-800'
                   : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 border border-emerald-200 dark:border-emerald-800'
               }`}
             >
               <span
-                className={`w-1.5 h-1.5 rounded-full ${
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                   activeTrip?.trafficCondition === 'heavy' || activeTrip?.trafficCondition === 'incident'
                     ? 'bg-rose-500 animate-pulse'
                     : 'bg-emerald-500'
                 }`}
               />
-              {activeTrip?.trafficCondition === 'heavy'
-                ? 'TRÂNSITO INTENSO'
-                : 'FLUXO REGULAR'}
+              {activeTrip?.trafficCondition === 'heavy' || activeTrip?.trafficCondition === 'incident'
+                ? t.trafficHeavy
+                : t.trafficClear}
             </div>
           </div>
 
           {/* ChronoPulse + Meeting Info */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 my-1">
+          <div className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4 my-1">
             <div className="shrink-0 flex items-center justify-center">
               <ChronoPulse
                 state={
-                  activeTrip?.trafficCondition === 'heavy' || activeTrip?.trafficCondition === 'incident'
+                  minutesUntilDeparture < 0 ||
+                  activeTrip?.trafficCondition === 'heavy' ||
+                  activeTrip?.trafficCondition === 'incident'
                     ? 'warning'
                     : 'calm'
                 }
                 size="md"
                 countdownMinutes={Math.max(0, minutesUntilDeparture)}
+                isLate={minutesUntilDeparture < 0}
+                language={profile.language}
                 interactive
                 onClick={() => onSelectTrip(activeTrip)}
               />
             </div>
 
-            <div className="flex-1 min-w-0 text-center sm:text-left space-y-1">
-              <span className="font-mono-telemetry text-[11px] text-[#0284C7] dark:text-[#38BDF8] uppercase font-bold tracking-wider block">
+            <div className="flex-1 min-w-0 w-full text-center sm:text-left space-y-1">
+              <span className="font-mono-telemetry text-[11px] text-[#0284C7] dark:text-[#38BDF8] uppercase font-bold tracking-wider block break-words leading-snug">
                 {minutesUntilDeparture > 0
                   ? (isEn
                       ? `Depart in ${formatDuration(minutesUntilDeparture)} · Exact: ${activeTrip.departureTime}`
                       : `Saída em ${formatDuration(minutesUntilDeparture)} · Partida exata às ${activeTrip.departureTime}`)
-                  : minutesUntilDeparture >= -15
+                  : minutesUntilDeparture === 0
                   ? (isEn ? `Depart now · Planned at ${activeTrip.departureTime}` : `Partida imediata · Agendada às ${activeTrip.departureTime}`)
                   : (isEn ? `Departure time passed (${activeTrip.departureTime})` : `Hora de partida ultrapassada (${activeTrip.departureTime})`)}
               </span>
               <h3 className="font-headline font-bold text-lg text-[#0F172A] dark:text-white truncate">
                 {activeTrip.title}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center sm:justify-start gap-1 truncate">
+              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center sm:justify-start gap-1 min-w-0">
                 <MapPin size={12} className="text-[#29B6F6] shrink-0" />
                 <span className="truncate">{activeTrip.destinationAddress}</span>
               </p>
@@ -263,28 +268,28 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
 
           {/* Transit Breakdown Numbers */}
-          <div className="grid grid-cols-3 gap-1 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-            <div>
-              <span className="font-mono-telemetry text-[9px] text-slate-400 block uppercase">
+          <div className="grid grid-cols-3 gap-1 p-2 sm:p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+            <div className="min-w-0 px-0.5">
+              <span className="font-mono-telemetry text-[9px] text-slate-400 block uppercase truncate">
                 {t.travelTime}
               </span>
-              <span className="font-mono-telemetry font-bold text-xs text-[#0F172A] dark:text-white">
+              <span className="font-mono-telemetry font-bold text-[11px] sm:text-xs text-[#0F172A] dark:text-white block break-words">
                 {formatDuration(activeTrip.travelTimeMin)}
               </span>
             </div>
-            <div className="border-x border-slate-200 dark:border-slate-800">
-              <span className="font-mono-telemetry text-[9px] text-[#0284C7] dark:text-[#38BDF8] block uppercase font-semibold">
+            <div className="min-w-0 px-1 border-x border-slate-200 dark:border-slate-800">
+              <span className="font-mono-telemetry text-[9px] text-[#0284C7] dark:text-[#38BDF8] block uppercase font-semibold truncate">
                 {t.margin}
               </span>
-              <span className="font-mono-telemetry font-bold text-xs text-[#0284C7] dark:text-[#38BDF8]">
+              <span className="font-mono-telemetry font-bold text-[11px] sm:text-xs text-[#0284C7] dark:text-[#38BDF8] block break-words">
                 +{formatDuration(activeTrip.smartBufferMin)}
               </span>
             </div>
-            <div>
-              <span className="font-mono-telemetry text-[9px] text-slate-400 block uppercase">
+            <div className="min-w-0 px-0.5">
+              <span className="font-mono-telemetry text-[9px] text-slate-400 block uppercase truncate">
                 {t.meeting}
               </span>
-              <span className="font-mono-telemetry font-bold text-xs text-[#0F172A] dark:text-white">
+              <span className="font-mono-telemetry font-bold text-[11px] sm:text-xs text-[#0F172A] dark:text-white block break-words">
                 {activeTrip.scheduledTime}
               </span>
             </div>
@@ -299,11 +304,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           />
 
           {/* Action Buttons in Thumb Zone */}
-          <div className="flex gap-2 pt-1">
+          <div className="flex flex-wrap gap-2 pt-1">
             <Button
               variant="primary"
               size="sm"
-              className="flex-1"
+              className="flex-1 min-w-[125px]"
               icon={<Navigation size={14} />}
               onClick={() => onMarkDeparted(activeTrip.id)}
             >
@@ -312,7 +317,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <Button
               variant="urgent"
               size="sm"
-              className="flex-1"
+              className="flex-1 min-w-[125px]"
               icon={<Mic size={14} />}
               onClick={() => onOpenVoiceHUD(activeTrip)}
             >
@@ -351,43 +356,43 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       )}
 
       {/* QUICK ACTIONS ROW */}
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
         <button
           onClick={onOpenNewTrip}
-          className="p-3.5 rounded-2xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] text-slate-800 dark:text-slate-200 font-headline font-semibold text-xs flex items-center justify-between shadow-sm active:scale-98 transition-all"
+          className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] text-slate-800 dark:text-slate-200 font-headline font-semibold text-xs flex items-center justify-between gap-1.5 min-w-0 shadow-sm active:scale-[0.98] transition-all"
         >
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-[#0284C7] dark:text-[#38BDF8]">
-              <Plus size={16} />
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="p-1.5 shrink-0 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-[#0284C7] dark:text-[#38BDF8]">
+              <Plus size={15} />
             </div>
-            <span>{t.newTripBtn}</span>
+            <span className="truncate text-left">{t.newTripBtn}</span>
           </div>
-          <ArrowRight size={14} className="text-slate-400" />
+          <ArrowRight size={14} className="text-slate-400 shrink-0" />
         </button>
 
         <button
           onClick={() => onOpenVoiceHUD()}
-          className="p-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-rose-600 text-white font-headline font-semibold text-xs flex items-center justify-between shadow-md shadow-rose-500/20 active:scale-98 transition-all"
+          className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-rose-600 text-white font-headline font-semibold text-xs flex items-center justify-between gap-1.5 min-w-0 shadow-md shadow-rose-500/20 active:scale-[0.98] transition-all"
         >
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-white/20">
-              <Mic size={16} className="animate-pulse" />
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="p-1.5 shrink-0 rounded-lg bg-white/20">
+              <Mic size={15} className="animate-pulse" />
             </div>
-            <span>{t.voicebotBtn}</span>
+            <span className="truncate text-left">{t.voicebotBtn}</span>
           </div>
-          <ArrowRight size={14} className="text-white/70" />
+          <ArrowRight size={14} className="text-white/70 shrink-0" />
         </button>
       </div>
 
       {/* ACTIVITY FEED */}
       <div className="space-y-2.5 pt-1">
-        <div className="flex items-center justify-between">
-          <h2 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white min-w-0">
             {t.scheduledTrips} ({trips.length})
           </h2>
 
           {hasTrips && (
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1">
               <FilterChip
                 label={t.allTrips}
                 active={filter === 'all'}

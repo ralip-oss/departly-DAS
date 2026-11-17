@@ -53,16 +53,16 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#F5F7FB] dark:bg-[#070D18] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col justify-between p-6 sm:p-10 select-none">
+    <div className="relative min-h-screen w-full bg-[#F5F7FB] dark:bg-[#070D18] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col justify-between p-4 sm:p-10 select-none">
       {/* Background Soft Glow */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#29B6F6]/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Top Header */}
-      <div className="relative z-10 flex items-center justify-between w-full max-w-2xl mx-auto">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 w-full max-w-2xl mx-auto">
         <DepartlyBrand size="sm" />
         <button
           onClick={onSkip}
-          className="text-xs font-headline font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+          className="text-xs font-headline font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors shrink-0"
         >
           Saltar introdução
         </button>
@@ -149,7 +149,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
               </div>
 
               {/* Buffer Selection Tiles */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                 {[
                   { val: 5, label: '5 minutos', desc: 'Pontualidade Express' },
                   { val: 10, label: '10 minutos', desc: 'Recomendado B2B' },
@@ -160,24 +160,24 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
                     key={item.val}
                     type="button"
                     onClick={() => setBufferMin(item.val)}
-                    className={`p-4 rounded-2xl border text-left transition-all ${
+                    className={`min-w-0 p-3 sm:p-4 rounded-2xl border text-left transition-all ${
                       bufferMin === item.val
                         ? 'bg-sky-50 dark:bg-sky-950/50 border-[#29B6F6] ring-2 ring-[#29B6F6]/30 shadow-sm'
                         : 'bg-white dark:bg-[#131D2E] border-[#E1E6F0] dark:border-[#2A374A] hover:border-slate-300'
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono-telemetry font-bold text-lg text-[#0F172A] dark:text-white">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="font-mono-telemetry font-bold text-base sm:text-lg text-[#0F172A] dark:text-white">
                         +{item.val}m
                       </span>
                       {bufferMin === item.val && (
-                        <Check size={16} className="text-[#0284C7] dark:text-[#38BDF8]" />
+                        <Check size={16} className="text-[#0284C7] dark:text-[#38BDF8] shrink-0" />
                       )}
                     </div>
-                    <span className="font-headline font-semibold text-xs block text-slate-700 dark:text-slate-300 mt-1">
+                    <span className="font-headline font-semibold text-xs block text-slate-700 dark:text-slate-300 mt-1 break-words">
                       {item.label}
                     </span>
-                    <span className="text-[10px] text-slate-400 block">
+                    <span className="text-[10px] text-slate-400 block break-words">
                       {item.desc}
                     </span>
                   </button>
@@ -188,7 +188,8 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
               <BufferSlider
                 value={bufferMin}
                 onChange={setBufferMin}
-                label="Ajuste fino da margem"
+                label={initialProfile.language === 'en' ? 'Fine-tune safety margin' : 'Ajuste fino da margem'}
+                language={initialProfile.language}
               />
             </motion.div>
           )}
@@ -241,14 +242,14 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
                     key={mode.id}
                     type="button"
                     onClick={() => setTransitMode(mode.id)}
-                    className={`w-full p-4 rounded-2xl border text-left flex items-start gap-4 transition-all ${
+                    className={`w-full p-3.5 sm:p-4 rounded-2xl border text-left flex items-start gap-3 sm:gap-4 transition-all ${
                       transitMode === mode.id
                         ? 'bg-sky-50 dark:bg-sky-950/50 border-[#29B6F6] ring-2 ring-[#29B6F6]/30 shadow-sm'
                         : 'bg-white dark:bg-[#131D2E] border-[#E1E6F0] dark:border-[#2A374A] hover:border-slate-300'
                     }`}
                   >
                     <div
-                      className={`p-3 rounded-xl shrink-0 ${
+                      className={`p-2.5 sm:p-3 rounded-xl shrink-0 ${
                         transitMode === mode.id
                           ? 'bg-[#29B6F6] text-white'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
@@ -256,16 +257,16 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
                     >
                       {mode.icon}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-headline font-bold text-sm text-[#0F172A] dark:text-white">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-headline font-bold text-sm text-[#0F172A] dark:text-white break-words">
                           {mode.title}
                         </span>
                         {transitMode === mode.id && (
-                          <Check size={18} className="text-[#0284C7] dark:text-[#38BDF8]" />
+                          <Check size={18} className="text-[#0284C7] dark:text-[#38BDF8] shrink-0" />
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 break-words">
                         {mode.desc}
                       </p>
                     </div>
@@ -299,16 +300,16 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
 
               <div className="space-y-3">
                 {/* Feature 1: Smart Calendar Injection */}
-                <div className="p-4 rounded-2xl bg-white dark:bg-[#131D2E] border border-[#E1E6F0] dark:border-[#2A374A] flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#131D2E] border border-[#E1E6F0] dark:border-[#2A374A] flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
                     <div className="p-2.5 rounded-xl bg-sky-100 dark:bg-sky-900/60 text-[#0284C7] shrink-0">
-                      <Calendar size={22} />
+                      <Calendar size={20} />
                     </div>
-                    <div>
-                      <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white break-words">
                         Bloqueio Bidirecional no Calendário
                       </h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 break-words">
                         Injeta blocos automáticos marcados como &ldquo;Em Deslocação&rdquo; antes de cada evento físico.
                       </p>
                     </div>
@@ -317,21 +318,21 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
                     type="checkbox"
                     checked={calendarSyncEnabled}
                     onChange={(e) => setCalendarSyncEnabled(e.target.checked)}
-                    className="w-5 h-5 mt-1 accent-[#29B6F6] rounded"
+                    className="w-5 h-5 mt-1 accent-[#29B6F6] rounded shrink-0"
                   />
                 </div>
 
                 {/* Feature 2: Hands-Free Voice AI */}
-                <div className="p-4 rounded-2xl bg-white dark:bg-[#131D2E] border border-[#E1E6F0] dark:border-[#2A374A] flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#131D2E] border border-[#E1E6F0] dark:border-[#2A374A] flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
                     <div className="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-900/60 text-[#FF6B57] shrink-0">
-                      <Mic size={22} />
+                      <Mic size={20} />
                     </div>
-                    <div>
-                      <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white break-words">
                         Voicebot IA para Gestão de Imprevistos
                       </h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 break-words">
                         Em caso de trânsito repentino, avisa clientes por voz com novo ETA sem tirar as mãos do volante.
                       </p>
                     </div>
@@ -340,13 +341,13 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
                     type="checkbox"
                     checked={voiceEnabled}
                     onChange={(e) => setVoiceEnabled(e.target.checked)}
-                    className="w-5 h-5 mt-1 accent-[#FF6B57] rounded"
+                    className="w-5 h-5 mt-1 accent-[#FF6B57] rounded shrink-0"
                   />
                 </div>
 
                 <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
                   <ShieldCheck size={16} className="text-emerald-600 shrink-0" />
-                  <span>Conformidade RGPD: dados de GPS encriptados e processados localmente.</span>
+                  <span className="min-w-0 break-words">Conformidade RGPD: dados de GPS encriptados e processados localmente.</span>
                 </div>
               </div>
             </motion.div>

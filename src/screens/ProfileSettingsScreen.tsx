@@ -184,28 +184,28 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
       </div>
 
       {/* Profile Card: Guest Account or Authenticated Account */}
-      <div className="p-5 rounded-3xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] shadow-sm flex flex-col gap-4">
-        <div className="flex items-center gap-4">
+      <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] shadow-sm flex flex-col gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           <div className="relative shrink-0">
-            <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-headline font-bold text-lg shadow-sm">
-              {isGuest ? <User size={24} className="text-slate-400 dark:text-slate-500" /> : profile.name.slice(0, 2).toUpperCase()}
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-headline font-bold text-lg shadow-sm">
+              {isGuest ? <User size={22} className="text-slate-400 dark:text-slate-500" /> : profile.name.slice(0, 2).toUpperCase()}
             </div>
             <span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#10192A] ${isGuest ? 'bg-amber-400' : 'bg-emerald-500'}`} />
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="font-headline font-bold text-lg text-[#0F172A] dark:text-white truncate">
+            <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+              <h3 className="font-headline font-bold text-base sm:text-lg text-[#0F172A] dark:text-white truncate max-w-full">
                 {profile.name}
               </h3>
               {isGuest && (
-                <span className="px-2 py-0.5 rounded-full font-mono-telemetry text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                <span className="px-2 py-0.5 rounded-full font-mono-telemetry text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 whitespace-nowrap shrink-0">
                   {t.guestBadge}
                 </span>
               )}
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 break-words">
               {isGuest
                 ? t.guestDesc
                 : profile.email || (profile.language === 'en' ? 'Registered account' : 'Conta registada')}
@@ -215,11 +215,11 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 
         {/* Buttons for Sign up and Login */}
         {isGuest ? (
-          <div className="flex items-center gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
             <Button
               variant="primary"
               size="sm"
-              className="flex-1"
+              className="flex-1 min-w-[125px]"
               icon={<UserPlus size={15} />}
               onClick={() => {
                 setAuthFeedback(null);
@@ -231,7 +231,7 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
             <Button
               variant="secondary"
               size="sm"
-              className="flex-1"
+              className="flex-1 min-w-[125px]"
               icon={<LogIn size={15} />}
               onClick={() => {
                 setAuthFeedback(null);
@@ -242,13 +242,14 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
             </Button>
           </div>
         ) : (
-          <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-            <span className="text-emerald-600 dark:text-emerald-400 font-mono-telemetry flex items-center gap-1.5 font-semibold">
-              <CheckCircle2 size={14} /> {profile.language === 'en' ? 'Cloud Sync Active' : 'Sincronização de Nuvem Ativa'}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+            <span className="text-emerald-600 dark:text-emerald-400 font-mono-telemetry flex items-center gap-1.5 font-semibold min-w-0">
+              <CheckCircle2 size={14} className="shrink-0" />
+              <span className="break-words">{profile.language === 'en' ? 'Cloud Sync Active' : 'Sincronização de Nuvem Ativa'}</span>
             </span>
             <button
               onClick={handleLogoutToGuest}
-              className="text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 font-medium flex items-center gap-1 transition-colors"
+              className="text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 font-medium flex items-center gap-1 transition-colors shrink-0 whitespace-nowrap"
             >
               <LogOut size={13} /> {t.logoutToGuest}
             </button>
@@ -283,47 +284,47 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
           <button
             type="button"
             onClick={() => onUpdateProfile({ themeMode: 'light', theme: 'light' })}
-            className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-headline font-semibold text-xs transition-all duration-200 ${
+            className={`min-w-0 flex flex-col items-center justify-center py-2 px-1 rounded-xl font-headline font-semibold text-xs transition-all duration-200 ${
               profile.themeMode === 'light'
                 ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Sun size={15} className={profile.themeMode === 'light' ? 'text-amber-500 mb-0.5' : 'text-slate-400 mb-0.5'} />
-            <span className="text-[11px] truncate">{profile.language === 'en' ? 'Light' : 'Claro'}</span>
+            <span className="text-[11px] truncate max-w-full">{profile.language === 'en' ? 'Light' : 'Claro'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => onUpdateProfile({ themeMode: 'dark', theme: 'dark' })}
-            className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-headline font-semibold text-xs transition-all duration-200 ${
+            className={`min-w-0 flex flex-col items-center justify-center py-2 px-1 rounded-xl font-headline font-semibold text-xs transition-all duration-200 ${
               profile.themeMode === 'dark'
                 ? 'bg-[#1E293B] text-white shadow-sm ring-1 ring-slate-700'
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Moon size={15} className={profile.themeMode === 'dark' ? 'text-[#29B6F6] mb-0.5' : 'text-slate-400 mb-0.5'} />
-            <span className="text-[11px] truncate">{profile.language === 'en' ? 'Dark' : 'Escuro'}</span>
+            <span className="text-[11px] truncate max-w-full">{profile.language === 'en' ? 'Dark' : 'Escuro'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => onUpdateProfile({ themeMode: 'adaptive' })}
-            className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl font-headline font-semibold text-xs transition-all duration-200 ${
+            className={`min-w-0 flex flex-col items-center justify-center py-2 px-1 rounded-xl font-headline font-semibold text-xs transition-all duration-200 ${
               profile.themeMode === 'adaptive'
                 ? 'bg-gradient-to-r from-sky-500 to-[#29B6F6] text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Sparkles size={15} className={profile.themeMode === 'adaptive' ? 'text-white mb-0.5' : 'text-slate-400 mb-0.5'} />
-            <span className="text-[11px] truncate">{profile.language === 'en' ? 'Adaptive' : 'Adaptativo'}</span>
+            <span className="text-[11px] truncate max-w-full">{profile.language === 'en' ? 'Adaptive' : 'Adaptativo'}</span>
           </button>
         </div>
 
         {profile.themeMode === 'adaptive' && (
           <div className="p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-[11px] font-mono-telemetry text-sky-800 dark:text-sky-300 flex items-center gap-2">
             <Sparkles size={14} className="text-[#0284C7] dark:text-[#38BDF8] shrink-0" />
-            <span>
+            <span className="break-words min-w-0">
               {profile.language === 'en'
                 ? 'Adaptive theme: Light from 08:00 to 18:00, Dark from 18:00 to 08:00.'
                 : 'Tema adaptativo: Claro das 08:00 às 18:00, Escuro das 18:00 às 08:00.'}
@@ -333,9 +334,9 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 
         {/* TRANSLATION / IDIOMA (PT-PT & EN-UK) - DIRECTLY UNDER THEME */}
         <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
-          <div className="flex items-center gap-2">
-            <Globe size={18} className="text-[#29B6F6]" />
-            <div>
+          <div className="flex items-center gap-2 min-w-0">
+            <Globe size={18} className="text-[#29B6F6] shrink-0" />
+            <div className="min-w-0 flex-1">
               <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white">
                 {profile.language === 'en' ? 'Translation / Language' : 'Tradução / Idioma'}
               </h4>
@@ -345,29 +346,29 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+          <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => onUpdateProfile({ language: 'pt' })}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-headline font-semibold text-xs transition-all ${
+              className={`min-w-0 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl font-headline font-semibold text-xs transition-all ${
                 profile.language === 'pt'
                   ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <span>🇵🇹 PT-PT (Português)</span>
+              <span className="truncate">🇵🇹 PT-PT (Português)</span>
             </button>
 
             <button
               type="button"
               onClick={() => onUpdateProfile({ language: 'en' })}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-headline font-semibold text-xs transition-all ${
+              className={`min-w-0 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl font-headline font-semibold text-xs transition-all ${
                 profile.language === 'en'
                   ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <span>🇬🇧 EN-UK (English)</span>
+              <span className="truncate">🇬🇧 EN-UK (English)</span>
             </button>
           </div>
         </div>
@@ -384,6 +385,7 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
           value={profile.defaultBufferMin}
           onChange={(val) => onUpdateProfile({ defaultBufferMin: val })}
           label={t.defaultBuffer}
+          language={profile.language}
         />
 
         {/* Voice AI Tone */}
@@ -562,8 +564,8 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 
       {/* AUTH MODAL FOR SIGN UP & LOGIN */}
       {authModal !== 'none' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-sm bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] rounded-3xl p-6 shadow-2xl relative space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] rounded-3xl p-5 sm:p-6 shadow-2xl relative space-y-4">
             <button
               onClick={() => setAuthModal('none')}
               className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white"
@@ -571,17 +573,21 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               <X size={18} />
             </button>
 
-            <div>
+            <div className="pr-7">
               <span className="font-mono-telemetry text-[11px] font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider block">
-                {authModal === 'signup' ? 'REGISTO DE CONTA' : 'INICIAR SESSÃO'}
+                {authModal === 'signup'
+                  ? (isEn ? 'CREATE ACCOUNT' : 'REGISTO DE CONTA')
+                  : (isEn ? 'SIGN IN' : 'INICIAR SESSÃO')}
               </span>
               <h3 className="font-headline font-bold text-xl text-[#0F172A] dark:text-white mt-1">
-                {authModal === 'signup' ? 'Criar Conta Departly' : 'Bem-vindo de volta'}
+                {authModal === 'signup'
+                  ? (isEn ? 'Create Departly Account' : 'Criar Conta Departly')
+                  : (isEn ? 'Welcome back' : 'Bem-vindo de volta')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {authModal === 'signup'
-                  ? 'Sincronize calendários e desbloqueie o Voicebot IA completo.'
-                  : 'Aceda à sua conta e restaure as suas rotinas.'}
+                  ? (isEn ? 'Sync calendars and unlock full Voice AI dispatch.' : 'Sincronize calendários e desbloqueie o Voicebot IA completo.')
+                  : (isEn ? 'Access your account and restore your routes.' : 'Aceda à sua conta e restaure as suas rotinas.')}
               </p>
             </div>
 

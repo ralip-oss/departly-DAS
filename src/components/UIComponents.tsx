@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, AlertCircle, Info, ChevronRight, Sliders } from 'lucide-react';
-import { ToastMessage } from '../types';
+import { ToastMessage, AppLanguage } from '../types';
 
 /* =========================================================
    BUTTONS
@@ -28,7 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'relative inline-flex items-center justify-center font-headline font-semibold rounded-full select-none transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45';
+    'relative inline-flex items-center justify-center max-w-full text-center leading-tight font-headline font-semibold rounded-full select-none transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45';
 
   const sizeStyles = {
     sm: 'min-h-[36px] px-3.5 py-1.5 text-xs gap-1.5',
@@ -78,6 +78,7 @@ interface FloatingInputProps
   error?: string;
   helperText?: string;
   icon?: React.ReactNode;
+  rightSlot?: React.ReactNode;
   onClear?: () => void;
 }
 
@@ -86,6 +87,7 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
   error,
   helperText,
   icon,
+  rightSlot,
   value,
   onClear,
   id,
@@ -150,16 +152,21 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
           />
         </div>
 
-        {hasValue && onClear && (
-          <button
-            type="button"
-            onClick={onClear}
-            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full"
-            aria-label="Limpar campo"
-          >
-            <X size={14} />
-          </button>
-        )}
+        {(hasValue && onClear) || rightSlot ? (
+          <div className="flex items-center gap-1 shrink-0 self-center ml-1.5">
+            {hasValue && onClear && (
+              <button
+                type="button"
+                onClick={onClear}
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full"
+                aria-label="Limpar campo"
+              >
+                <X size={14} />
+              </button>
+            )}
+            {rightSlot}
+          </div>
+        ) : null}
       </div>
 
       {error ? (
@@ -198,17 +205,17 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center min-h-[36px] px-3.5 py-1 rounded-full text-xs font-semibold font-headline whitespace-nowrap transition-all duration-150 select-none ${
+      className={`inline-flex items-center max-w-full min-h-[34px] sm:min-h-[36px] px-3 sm:px-3.5 py-1 rounded-full text-xs font-semibold font-headline whitespace-nowrap shrink-0 transition-all duration-150 select-none ${
         active
           ? 'bg-[#29B6F6] text-white shadow-sm'
           : 'bg-[#EBF1F9] dark:bg-[#1E293B] text-slate-700 dark:text-slate-300 border border-[#E1E6F0] dark:border-[#334155] hover:border-slate-300'
       }`}
     >
-      {icon && <span className="mr-1.5 text-sm">{icon}</span>}
+      {icon && <span className="mr-1.5 text-sm shrink-0">{icon}</span>}
       <span>{label}</span>
       {count !== undefined && (
         <span
-          className={`ml-1.5 px-1.5 py-0.2 rounded-full font-mono-telemetry text-[10px] ${
+          className={`ml-1.5 px-1.5 py-0.5 rounded-full font-mono-telemetry text-[10px] shrink-0 ${
             active
               ? 'bg-white/20 text-white'
               : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
@@ -247,14 +254,14 @@ export const Toggle: React.FC<ToggleProps> = ({
       }`}
     >
       {(label || description) && (
-        <div className="flex flex-col">
+        <div className="flex flex-col min-w-0 flex-1">
           {label && (
-            <span className="text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+            <span className="text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] break-words">
               {label}
             </span>
           )}
           {description && (
-            <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 break-words">
               {description}
             </span>
           )}
@@ -291,6 +298,7 @@ interface BufferSliderProps {
   step?: number;
   unit?: string;
   label?: string;
+  language?: AppLanguage;
   onChange: (value: number) => void;
 }
 
@@ -299,20 +307,24 @@ export const BufferSlider: React.FC<BufferSliderProps> = ({
   min = 5,
   max = 30,
   step = 1,
-  unit = 'minutos',
-  label = 'Margem de Segurança Inteligente',
+  unit,
+  label,
+  language = 'pt',
   onChange,
 }) => {
-  const percentage = ((value - min) / (max - min)) * 100;
+  const isEn = language === 'en';
+  const resolvedUnit = unit ?? (isEn ? 'minutes' : 'minutos');
+  const resolvedLabel =
+    label ?? (isEn ? 'Smart Safety Buffer' : 'Margem de Segurança Inteligente');
 
   return (
-    <div className="flex flex-col gap-2 w-full p-4 rounded-xl bg-white dark:bg-[#131D2E] border border-[#E1E6F0] dark:border-[#2A374A]">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-mono-telemetry uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          {label}
+    <div className="flex flex-col gap-2 w-full p-3.5 sm:p-4 rounded-xl bg-white dark:bg-[#131D2E] border border-[#E1E6F0] dark:border-[#2A374A]">
+      <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+        <span className="text-xs font-mono-telemetry uppercase tracking-wider text-slate-500 dark:text-slate-400 min-w-0 flex-1 break-words">
+          {resolvedLabel}
         </span>
-        <span className="font-mono-telemetry font-bold text-sm text-[#0284C7] dark:text-[#38BDF8] bg-[#E1F5FE] dark:bg-[#003852] px-2.5 py-0.5 rounded-full">
-          +{value} {unit}
+        <span className="font-mono-telemetry font-bold text-xs sm:text-sm text-[#0284C7] dark:text-[#38BDF8] bg-[#E1F5FE] dark:bg-[#003852] px-2.5 py-0.5 rounded-full whitespace-nowrap shrink-0">
+          +{value} {resolvedUnit}
         </span>
       </div>
 
@@ -328,10 +340,10 @@ export const BufferSlider: React.FC<BufferSliderProps> = ({
         />
       </div>
 
-      <div className="flex justify-between text-[10px] font-mono-telemetry text-slate-400">
+      <div className="flex flex-wrap justify-between gap-x-2 gap-y-0.5 text-[10px] font-mono-telemetry text-slate-400">
         <span>{min} min (Express)</span>
-        <span>15 min (Padrão)</span>
-        <span>{max} min (Ultra-Seguro)</span>
+        <span>{isEn ? '15 min (Standard)' : '15 min (Padrão)'}</span>
+        <span>{max} min ({isEn ? 'Ultra-Safe' : 'Ultra-Seguro'})</span>
       </div>
     </div>
   );
@@ -381,22 +393,22 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             <div className="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto my-3 sm:hidden" />
 
             {/* Header */}
-            <div className="px-5 py-3 border-b border-[#E1E6F0] dark:border-[#2A374A] flex items-center justify-between">
-              <div>
+            <div className="px-4 sm:px-5 py-3 border-b border-[#E1E6F0] dark:border-[#2A374A] flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
                 {title && (
-                  <h3 className="font-headline font-bold text-lg text-[#0F172A] dark:text-[#F8FAFC]">
+                  <h3 className="font-headline font-bold text-lg text-[#0F172A] dark:text-[#F8FAFC] break-words">
                     {title}
                   </h3>
                 )}
                 {subtitle && (
-                  <p className="text-xs font-mono-telemetry text-slate-500 dark:text-slate-400">
+                  <p className="text-xs font-mono-telemetry text-slate-500 dark:text-slate-400 break-words">
                     {subtitle}
                   </p>
                 )}
               </div>
               <button
                 onClick={onClose}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="min-w-[40px] min-h-[40px] shrink-0 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 aria-label="Fechar"
               >
                 <X size={18} />
@@ -404,7 +416,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             </div>
 
             {/* Content */}
-            <div className="p-5 overflow-y-auto flex-1">{children}</div>
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1">{children}</div>
           </motion.div>
         </div>
       )}
@@ -426,7 +438,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
   onDismiss,
 }) => {
   return (
-    <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div className="fixed bottom-20 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 flex flex-col gap-2 sm:w-full max-w-sm pointer-events-none">
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div

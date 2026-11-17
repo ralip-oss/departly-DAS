@@ -216,17 +216,17 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
           className="relative z-10 w-full max-w-xl bg-white dark:bg-[#0E1726] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
         >
           {/* Header Bar */}
-          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
-            <div className="flex items-center gap-2.5">
-              <span className="relative flex h-3 w-3">
+          <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2 bg-slate-50/50 dark:bg-slate-900/50">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <span className="relative flex h-3 w-3 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6B57] opacity-75" />
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#FF6B57]" />
               </span>
-              <div>
-                <span className="font-mono-telemetry text-xs font-bold text-slate-800 dark:text-slate-200 tracking-wider uppercase">
+              <div className="min-w-0 flex-1">
+                <span className="font-mono-telemetry text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 tracking-wider uppercase block truncate">
                   VOICE AI DELAY DISPATCH HUD
                 </span>
-                <span className="text-[10px] text-slate-400 block font-mono-telemetry">
+                <span className="text-[10px] text-slate-400 block font-mono-telemetry truncate">
                   HANDS-FREE PROTOCOL // SAFETY ACTIVE
                 </span>
               </div>
@@ -234,7 +234,7 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
 
             <button
               onClick={onClose}
-              className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+              className="min-w-[40px] min-h-[40px] shrink-0 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
               aria-label="Fechar HUD"
             >
               <X size={20} />
@@ -242,7 +242,7 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
           </div>
 
           {/* Body Content */}
-          <div className="p-6 overflow-y-auto flex-1 flex flex-col">
+          <div className="p-4 sm:p-6 overflow-y-auto flex-1 flex flex-col">
             {/* STEP 1: LISTENING & VOICE RECOGNITION */}
             {step === 'listening' && (
               <div className="flex flex-col items-center justify-center py-6 text-center">
@@ -298,10 +298,10 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
                   </p>
                 </div>
 
-                <div className="mt-6 flex gap-3 w-full">
+                <div className="mt-6 flex flex-wrap sm:flex-nowrap gap-2.5 w-full">
                   <Button
                     variant="secondary"
-                    className="flex-1"
+                    className="flex-1 min-w-[140px]"
                     onClick={() => {
                       setTranscript(
                         'Estou preso no trânsito, avisa a minha próxima reunião do meu atraso.'
@@ -313,7 +313,7 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
                   </Button>
                   <Button
                     variant="primary"
-                    className="flex-1"
+                    className="flex-1 min-w-[120px]"
                     onClick={processSpokenCommand}
                   >
                     Processar
@@ -359,64 +359,64 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
             {step === 'preview' && (
               <div className="flex flex-col gap-4">
                 {/* Live Incident Status Banner */}
-                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 flex flex-wrap items-start sm:items-center justify-between gap-2.5">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
                     <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/60 text-rose-600 flex items-center justify-center shrink-0">
                       <AlertTriangle size={20} />
                     </div>
-                    <div>
-                      <span className="font-mono-telemetry text-xs font-bold text-rose-700 dark:text-rose-400 block">
+                    <div className="min-w-0 flex-1">
+                      <span className="font-mono-telemetry text-xs font-bold text-rose-700 dark:text-rose-400 block break-words">
                         ATRASO ESTIMADO: +{delayMinutes} MINUTOS
                       </span>
-                      <span className="text-[11px] text-slate-600 dark:text-slate-300">
+                      <span className="text-[11px] text-slate-600 dark:text-slate-300 break-words">
                         Chegada recalculada: <strong className="text-slate-900 dark:text-white">14:44</strong> (Hora original: {targetTrip.scheduledTime})
                       </span>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className="font-mono-telemetry text-xs text-rose-600 font-semibold bg-white dark:bg-rose-900/80 px-2.5 py-1 rounded-full border border-rose-200">
+                  <div className="shrink-0 max-w-full">
+                    <span className="inline-block font-mono-telemetry text-[11px] text-rose-600 font-semibold bg-white dark:bg-rose-900/80 px-2.5 py-1 rounded-full border border-rose-200 whitespace-nowrap">
                       A1 / Eixo Norte-Sul
                     </span>
                   </div>
                 </div>
 
                 {/* Recipient Card */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-[#E1F5FE] dark:bg-[#003852] text-[#0284C7] flex items-center justify-center font-bold text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-8 h-8 shrink-0 rounded-full bg-[#E1F5FE] dark:bg-[#003852] text-[#0284C7] flex items-center justify-center font-bold text-xs">
                       {targetTrip.clientName.charAt(0)}
                     </div>
-                    <div>
-                      <span className="font-headline font-bold text-xs text-[#0F172A] dark:text-white block">
+                    <div className="min-w-0 flex-1">
+                      <span className="font-headline font-bold text-xs text-[#0F172A] dark:text-white block truncate">
                         {targetTrip.clientName}
                       </span>
-                      <span className="font-mono-telemetry text-[11px] text-slate-400">
+                      <span className="font-mono-telemetry text-[11px] text-slate-400 block break-all">
                         {targetTrip.attendees[0]?.email || 'contacto@cliente.pt'}
                       </span>
                     </div>
                   </div>
-                  <span className="text-[11px] font-mono-telemetry text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <span className="text-[11px] font-mono-telemetry text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 whitespace-nowrap shrink-0">
                     Cliente Notificado
                   </span>
                 </div>
 
                 {/* AI Drafted Message Preview */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono-telemetry uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                      <Sparkles size={12} className="text-[#29B6F6]" />
-                      Mensagem Redigida pelo Departly IA
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-xs font-mono-telemetry uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5 min-w-0">
+                      <Sparkles size={12} className="text-[#29B6F6] shrink-0" />
+                      <span className="break-words">Mensagem Redigida pelo Departly IA</span>
                     </span>
                     <button
                       onClick={() => setAutoSendActive(false)}
-                      className="text-xs text-[#0284C7] dark:text-[#38BDF8] hover:underline"
+                      className="text-xs text-[#0284C7] dark:text-[#38BDF8] hover:underline shrink-0 whitespace-nowrap"
                     >
                       Pausar Envio Automático
                     </button>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-body space-y-2 text-slate-700 dark:text-slate-300">
-                    <div className="font-semibold text-slate-900 dark:text-white pb-1 border-b border-slate-100 dark:border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-body space-y-2 text-slate-700 dark:text-slate-300">
+                    <div className="font-semibold text-slate-900 dark:text-white pb-1 border-b border-slate-100 dark:border-slate-800 break-words">
                       Assunto: {subject}
                     </div>
                     <textarea
@@ -433,18 +433,18 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
 
                 {/* Auto Dispatch Countdown Bar */}
                 {autoSendActive && (
-                  <div className="p-3 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-sky-800 dark:text-sky-300 font-medium">
-                      <Clock size={14} className="text-[#0284C7]" />
-                      <span>Envio autónomo hands-free em:</span>
+                  <div className="p-3 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-xs text-sky-800 dark:text-sky-300 font-medium min-w-0">
+                      <Clock size={14} className="text-[#0284C7] shrink-0" />
+                      <span className="break-words">Envio autónomo hands-free em:</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <span className="font-mono-telemetry font-bold text-base text-[#0284C7] dark:text-[#38BDF8]">
                         {autoCountdown}s
                       </span>
                       <button
                         onClick={() => setAutoSendActive(false)}
-                        className="text-[11px] underline text-slate-500 hover:text-slate-700 dark:text-slate-400"
+                        className="text-[11px] underline text-slate-500 hover:text-slate-700 dark:text-slate-400 whitespace-nowrap"
                       >
                         Cancelar timer
                       </button>
@@ -453,17 +453,17 @@ export const VoiceAIDispatchHUD: React.FC<VoiceAIDispatchHUDProps> = ({
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-wrap gap-2.5 pt-2">
                   <Button
                     variant="secondary"
-                    className="flex-1"
+                    className="flex-1 min-w-[120px]"
                     onClick={onClose}
                   >
                     Descartar
                   </Button>
                   <Button
                     variant="urgent"
-                    className="flex-1"
+                    className="flex-1 min-w-[120px]"
                     icon={<Send size={16} />}
                     onClick={handleConfirmSend}
                   >

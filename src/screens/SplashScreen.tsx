@@ -20,19 +20,19 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   const isEn = language === 'en';
 
   return (
-    <div className="relative min-h-screen w-full bg-[#F5F7FB] dark:bg-[#070D18] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col justify-between p-6 sm:p-10 overflow-hidden select-none">
+    <div className="relative min-h-screen w-full bg-[#F5F7FB] dark:bg-[#070D18] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col justify-between p-4 sm:p-10 overflow-hidden select-none">
       {/* Background Radiance Auras */}
       <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#29B6F6]/15 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-10 -right-24 w-80 h-80 bg-sky-300/10 dark:bg-sky-500/10 rounded-full blur-[90px] pointer-events-none" />
 
       {/* Centered Top Telemetry Pill (No 100% Pronto badge) */}
       <div className="relative z-10 flex items-center justify-center w-full max-w-4xl mx-auto">
-        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-sm">
-          <span className="relative flex h-2 w-2">
+        <div className="flex items-center gap-2 max-w-full px-3.5 sm:px-4 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-sm">
+          <span className="relative flex h-2 w-2 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#29B6F6] opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#29B6F6]" />
           </span>
-          <span className="font-mono-telemetry text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <span className="font-mono-telemetry text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
             CALIBRANDO DISPATCH // V2.4
           </span>
         </div>
@@ -120,7 +120,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         <Button
           variant="secondary"
           size="lg"
-          className="w-full sm:w-auto whitespace-nowrap"
+          className="w-full sm:w-auto"
           icon={<LogIn size={16} />}
           iconPosition="left"
           onClick={onLogin}

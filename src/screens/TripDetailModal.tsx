@@ -158,18 +158,18 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
           className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#10192A] rounded-t-3xl sm:rounded-3xl border border-[#E1E6F0] dark:border-[#243248] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         >
           {/* Header Bar */}
-          <div className="px-6 py-4 border-b border-[#E1E6F0] dark:border-[#243248] flex items-center justify-between bg-slate-50/70 dark:bg-slate-900/60">
-            <div className="flex items-center gap-2">
-              <span className="font-mono-telemetry text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider">
+          <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#E1E6F0] dark:border-[#243248] flex items-center justify-between gap-2 bg-slate-50/70 dark:bg-slate-900/60">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0 flex-1">
+              <span className="font-mono-telemetry text-[11px] sm:text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider truncate max-w-full">
                 {t.tripDetailHeader}
               </span>
-              <span className="text-slate-300 dark:text-slate-700">·</span>
-              <span className="font-mono-telemetry text-xs text-slate-500">
+              <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">·</span>
+              <span className="font-mono-telemetry text-[11px] sm:text-xs text-slate-500 truncate max-w-full">
                 {trip.calendarSource}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 shrink-0">
               {onDeleteTrip && (
                 <button
                   type="button"
@@ -193,36 +193,36 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
           </div>
 
           {/* Modal Body */}
-          <div className="p-6 overflow-y-auto space-y-6 flex-1">
+          <div className="p-4 sm:p-6 overflow-y-auto space-y-5 sm:space-y-6 flex-1">
             {/* Title & Status */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="font-headline font-bold text-2xl text-[#0F172A] dark:text-white">
+              <div className="min-w-0 flex-1">
+                <h2 className="font-headline font-bold text-xl sm:text-2xl text-[#0F172A] dark:text-white break-words">
                   {trip.title}
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
-                  <MapPin size={14} className="text-[#29B6F6] shrink-0" />
-                  <span>{trip.destinationAddress}</span>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-start gap-1.5 min-w-0">
+                  <MapPin size={14} className="text-[#29B6F6] shrink-0 mt-0.5" />
+                  <span className="break-words min-w-0">{trip.destinationAddress}</span>
                 </p>
               </div>
 
               {hasDelay && (
-                <div className="px-3 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-600 font-mono-telemetry text-xs font-bold flex items-center gap-1.5 self-start sm:self-center">
-                  <AlertTriangle size={14} />
-                  <span>{isEn ? 'Severe Traffic (+14m)' : 'Trânsito Grave (+14m)'}</span>
+                <div className="px-3 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-600 font-mono-telemetry text-xs font-bold inline-flex items-center gap-1.5 self-start sm:self-center max-w-full shrink-0">
+                  <AlertTriangle size={14} className="shrink-0" />
+                  <span className="whitespace-nowrap">{isEn ? 'Severe Traffic (+14m)' : 'Trânsito Grave (+14m)'}</span>
                 </div>
               )}
             </div>
 
             {/* REAL-TIME TRANSIT TELEMETRY OVERLAY (DIRECTIONS API LIVE TRAFFIC) */}
-            <div className="p-4 rounded-3xl bg-gradient-to-br from-slate-50 via-white to-sky-50/40 dark:from-slate-900 dark:via-[#10192A] dark:to-slate-950 border border-[#29B6F6]/30 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-2.5 w-2.5">
+            <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-br from-slate-50 via-white to-sky-50/40 dark:from-slate-900 dark:via-[#10192A] dark:to-slate-950 border border-[#29B6F6]/30 shadow-sm space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#29B6F6] opacity-75" />
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#29B6F6]" />
                   </span>
-                  <span className="font-mono-telemetry text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider">
+                  <span className="font-mono-telemetry text-[11px] sm:text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider break-words leading-snug">
                     {isEn ? 'GOOGLE MAPS DIRECTIONS // LIVE TRANSIT TELEMETRY' : 'GOOGLE MAPS DIRECTIONS // TELEMETRIA DE TRÂNSITO AO VIVO'}
                   </span>
                 </div>
@@ -231,7 +231,7 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
                   type="button"
                   onClick={handleSimulateTrafficChange}
                   disabled={isUpdatingTraffic}
-                  className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-[#E1F5FE] dark:hover:bg-[#003852] text-[#0284C7] dark:text-[#38BDF8] font-mono-telemetry text-[11px] font-semibold flex items-center gap-1.5 transition-all"
+                  className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-[#E1F5FE] dark:hover:bg-[#003852] text-[#0284C7] dark:text-[#38BDF8] font-mono-telemetry text-[11px] font-semibold inline-flex items-center gap-1.5 transition-all shrink-0 whitespace-nowrap"
                 >
                   <RefreshCw size={12} className={isUpdatingTraffic ? 'animate-spin' : ''} />
                   <span>{isEn ? 'Simulate Traffic Change' : 'Simular Trânsito'}</span>
@@ -261,10 +261,10 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
                   </span>
                   <span className="font-bold block">
                     {liveTrafficSeverity === 'heavy'
-                      ? '16 km/h · +14m Retenção'
+                      ? (isEn ? '16 km/h · +14m Delay' : '16 km/h · +14m Retenção')
                       : liveTrafficSeverity === 'moderate'
-                      ? '31 km/h · +5m Atraso'
-                      : '56 km/h · Livre'}
+                      ? (isEn ? '31 km/h · +5m Delay' : '31 km/h · +5m Atraso')
+                      : (isEn ? '56 km/h · Clear' : '56 km/h · Livre')}
                   </span>
                 </div>
 
@@ -291,10 +291,10 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
               )}
 
               {/* Automatic Buffer Adjustment Toggle */}
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center gap-2 text-xs">
-                  <Shield size={14} className="text-emerald-500" />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <div className="flex items-center gap-2 text-xs min-w-0 flex-1">
+                  <Shield size={14} className="text-emerald-500 shrink-0" />
+                  <span className="font-semibold text-slate-700 dark:text-slate-300 break-words leading-snug">
                     {isEn
                       ? 'Auto-adjust Smart Buffer based on road conditions'
                       : 'Ajuste automático de margem baseado nas condições da estrada'}
@@ -303,7 +303,7 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setAutoAdjustActive(!autoAdjustActive)}
-                  className={`px-3 py-1 rounded-full text-xs font-mono-telemetry font-bold transition-all ${
+                  className={`px-3 py-1 rounded-full text-xs font-mono-telemetry font-bold transition-all shrink-0 whitespace-nowrap ${
                     autoAdjustActive
                       ? 'bg-emerald-500 text-white shadow-sm'
                       : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
@@ -315,53 +315,64 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
             </div>
 
             {/* Route Corridor Visual Strip */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="font-mono-telemetry text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+              {/* Corridor Header: wraps cleanly without colliding */}
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 min-w-0">
+                <span className="font-mono-telemetry text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider min-w-0 break-words">
                   {t.corridorTitle} // {trip.distanceKm} KM
                 </span>
-                <span className="font-mono-telemetry text-xs text-[#0284C7] dark:text-[#38BDF8] font-semibold">
+                <span className="font-mono-telemetry text-[11px] sm:text-xs text-[#0284C7] dark:text-[#38BDF8] font-semibold max-w-full truncate">
                   Via A1 / Eixo Norte-Sul
                 </span>
               </div>
 
-              {/* Graphical Route Steps */}
-              <div className="relative flex items-center justify-between px-2 py-3">
-                <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-slate-200 dark:bg-slate-700" />
-                <div
-                  className={`absolute left-6 top-1/2 -translate-y-1/2 h-1 transition-all duration-500 ${
-                    hasDelay ? 'bg-[#FF6B57] w-2/3' : 'bg-[#29B6F6] w-full'
-                  }`}
-                />
-
-                {/* Origin node */}
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-8 h-8 rounded-full bg-[#29B6F6] text-white flex items-center justify-center font-bold text-xs shadow-md">
-                    1
+              {/* Graphical Route Steps Track (1 —— 2 cleanly separated from pill so markers are never covered) */}
+              <div className="px-2 pt-1">
+                <div className="relative flex items-start justify-between">
+                  {/* Connecting Track aligned to center of 32px (h-8) marker circles */}
+                  <div className="absolute left-4 right-4 top-4 -translate-y-1/2 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 rounded-full ${
+                        hasDelay ? 'bg-[#FF6B57] w-2/3' : 'bg-[#29B6F6] w-full'
+                      }`}
+                    />
                   </div>
-                  <span className="font-mono-telemetry text-[11px] font-bold text-[#0F172A] dark:text-white mt-1">
-                    {trip.departureTime}
-                  </span>
-                  <span className="text-[10px] text-slate-400">{isEn ? 'Departure' : 'Partida'}</span>
+
+                  {/* Origin node */}
+                  <div className="relative z-10 flex flex-col items-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-[#29B6F6] text-white flex items-center justify-center font-bold text-xs shadow-md ring-2 ring-slate-50 dark:ring-slate-900">
+                      1
+                    </div>
+                    <span className="font-mono-telemetry text-[11px] font-bold text-[#0F172A] dark:text-white mt-1.5">
+                      {trip.departureTime}
+                    </span>
+                    <span className="text-[10px] text-slate-400">{isEn ? 'Departure' : 'Partida'}</span>
+                  </div>
+
+                  {/* Destination node */}
+                  <div className="relative z-10 flex flex-col items-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 flex items-center justify-center font-bold text-xs shadow-md ring-2 ring-slate-50 dark:ring-slate-900">
+                      2
+                    </div>
+                    <span className="font-mono-telemetry text-[11px] font-bold text-[#0F172A] dark:text-white mt-1.5">
+                      {trip.scheduledTime}
+                    </span>
+                    <span className="text-[10px] text-slate-400">{isEn ? 'Meeting' : 'Reunião'}</span>
+                  </div>
                 </div>
 
-                {/* Mid: Travel + Buffer badge */}
-                <div className="relative z-10 px-3 py-1 rounded-full bg-white dark:bg-[#131D2E] border border-slate-300 dark:border-slate-600 shadow-sm font-mono-telemetry text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <Car size={14} className="text-[#0284C7]" />
-                  <span>{formatDuration(trip.travelTimeMin)} {isEn ? 'drive' : 'viagem'}</span>
-                  <span className="text-slate-400">·</span>
-                  <span className="text-[#0284C7] dark:text-[#38BDF8]">+{formatDuration(currentBuffer)} {isEn ? 'buffer' : 'margem'}</span>
-                </div>
-
-                {/* Destination node */}
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-8 h-8 rounded-full bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 flex items-center justify-center font-bold text-xs shadow-md">
-                    2
+                {/* Mid: Travel + Buffer Pill in its own centered row so it grows cleanly and never covers markers 1 or 2 */}
+                <div className="flex justify-center pt-2.5">
+                  <div className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 max-w-full px-3 py-1.5 rounded-2xl sm:rounded-full bg-white dark:bg-[#131D2E] border border-slate-300 dark:border-slate-600 shadow-sm font-mono-telemetry text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 text-center">
+                    <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                      <Car size={13} className="text-[#0284C7] shrink-0" />
+                      <span>{formatDuration(trip.travelTimeMin)} {isEn ? 'drive' : 'viagem'}</span>
+                    </span>
+                    <span className="text-slate-400">·</span>
+                    <span className="text-[#0284C7] dark:text-[#38BDF8] whitespace-nowrap">
+                      +{formatDuration(currentBuffer)} {isEn ? 'buffer' : 'margem'}
+                    </span>
                   </div>
-                  <span className="font-mono-telemetry text-[11px] font-bold text-[#0F172A] dark:text-white mt-1">
-                    {trip.scheduledTime}
-                  </span>
-                  <span className="text-[10px] text-slate-400">{isEn ? 'Meeting' : 'Reunião'}</span>
                 </div>
               </div>
             </div>
@@ -388,6 +399,7 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
                 value={currentBuffer}
                 onChange={handleBufferChange}
                 label={isEn ? 'Safety Margin for this Client' : 'Margem de Segurança para este Cliente'}
+                language={language}
               />
             </div>
 
@@ -401,17 +413,17 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
                 {trip.attendees.map((attendee, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between"
+                    className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#E1F5FE] dark:bg-[#003852] text-[#0284C7] flex items-center justify-center font-bold text-sm">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-10 h-10 shrink-0 rounded-full bg-[#E1F5FE] dark:bg-[#003852] text-[#0284C7] flex items-center justify-center font-bold text-sm">
                         {attendee.name.charAt(0)}
                       </div>
-                      <div>
-                        <span className="font-headline font-bold text-sm text-[#0F172A] dark:text-white block">
+                      <div className="min-w-0 flex-1">
+                        <span className="font-headline font-bold text-sm text-[#0F172A] dark:text-white block truncate">
                           {attendee.name}
                         </span>
-                        <span className="text-xs text-slate-400 block font-mono-telemetry">
+                        <span className="text-xs text-slate-400 block font-mono-telemetry break-all leading-snug">
                           {attendee.role} · {attendee.email}
                         </span>
                       </div>
@@ -420,7 +432,7 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
                     {attendee.phone && (
                       <a
                         href={`tel:${attendee.phone}`}
-                        className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-[#0284C7] transition-colors"
+                        className="p-2 shrink-0 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-[#0284C7] transition-colors"
                         title="Ligar"
                       >
                         <Phone size={16} />

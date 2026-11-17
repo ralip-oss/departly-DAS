@@ -53,12 +53,12 @@ export const Navigation: React.FC<NavigationProps> = ({
           Compact (54px) with Logo and (Left to Right: Theme, Notifications, Profile)
           Time is hidden on the top bar as requested by user
           ========================================================= */}
-      <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-[#0E1626]/90 backdrop-blur-md border-b border-[#E1E6F0] dark:border-[#1E293B] px-4 py-2.5 flex items-center justify-between select-none transition-colors duration-200">
-        <div className="flex items-center gap-2">
+      <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-[#0E1626]/90 backdrop-blur-md border-b border-[#E1E6F0] dark:border-[#1E293B] px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 select-none transition-colors duration-200">
+        <div className="flex items-center gap-2 min-w-0">
           <DepartlyBrand size="sm" onClick={() => onTabChange('dashboard')} />
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* 1. Theme toggle button */}
           <button
             onClick={onToggleTheme}
@@ -127,36 +127,39 @@ export const Navigation: React.FC<NavigationProps> = ({
           PHONE-FIRST BOTTOM NAVIGATION BAR WITH FLOATING ACTION BUTTON
           Thumb-zone anchor: Hoje, Trajetos, Voicebot (center), Pesquisa, Radar (Google Maps)
           ========================================================= */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#0E1626]/95 backdrop-blur-xl border-t border-[#E1E6F0] dark:border-[#1E293B] pb-safe transition-colors duration-200">
-        <div className="max-w-md mx-auto relative h-16 flex items-center justify-around px-2">
+      <div
+        data-bottom-nav="true"
+        className="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#0E1626]/95 backdrop-blur-xl border-t border-[#E1E6F0] dark:border-[#1E293B] pb-safe transition-colors duration-200"
+      >
+        <div className="max-w-md mx-auto relative h-16 flex items-center justify-between px-1.5 sm:px-2">
           {/* Tab 1: Dashboard (Hoje / Today) */}
           <button
             onClick={() => onTabChange('dashboard')}
-            className={`flex flex-col items-center justify-center min-w-[56px] py-1 transition-all ${
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 transition-all ${
               currentTab === 'dashboard'
                 ? 'text-[#0284C7] dark:text-[#38BDF8] scale-105 font-bold'
                 : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
             }`}
           >
-            <Compass size={22} />
-            <span className="text-[10px] font-headline font-semibold mt-1">{t.today}</span>
+            <Compass size={21} />
+            <span className="text-[10px] font-headline font-semibold mt-1 truncate max-w-full px-0.5">{t.today}</span>
           </button>
 
           {/* Tab 2: Trajetos / Trips */}
           <button
             onClick={() => onTabChange('trips')}
-            className={`flex flex-col items-center justify-center min-w-[56px] py-1 transition-all ${
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 transition-all ${
               currentTab === 'trips'
                 ? 'text-[#0284C7] dark:text-[#38BDF8] scale-105 font-bold'
                 : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
             }`}
           >
-            <Calendar size={22} />
-            <span className="text-[10px] font-headline font-semibold mt-1">{t.trips}</span>
+            <Calendar size={21} />
+            <span className="text-[10px] font-headline font-semibold mt-1 truncate max-w-full px-0.5">{t.trips}</span>
           </button>
 
           {/* Floating Center Action Button (Voicebot Delay Dispatch) */}
-          <div className="relative -top-5">
+          <div className="relative -top-5 shrink-0 mx-1">
             <button
               onClick={onOpenVoiceHUD}
               className="relative w-14 h-14 rounded-full bg-gradient-to-tr from-[#0284C7] to-[#29B6F6] text-white flex items-center justify-center shadow-lg shadow-[#29B6F6]/40 ring-4 ring-[#F5F7FB] dark:ring-[#070D18] active:scale-95 hover:scale-105 transition-all"
@@ -171,27 +174,27 @@ export const Navigation: React.FC<NavigationProps> = ({
           {/* Tab 3: Search (Pesquisa / Search) */}
           <button
             onClick={() => onTabChange('search')}
-            className={`flex flex-col items-center justify-center min-w-[56px] py-1 transition-all ${
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 transition-all ${
               currentTab === 'search'
                 ? 'text-[#0284C7] dark:text-[#38BDF8] scale-105 font-bold'
                 : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
             }`}
           >
-            <Search size={22} />
-            <span className="text-[10px] font-headline font-semibold mt-1">{t.search}</span>
+            <Search size={21} />
+            <span className="text-[10px] font-headline font-semibold mt-1 truncate max-w-full px-0.5">{t.search}</span>
           </button>
 
           {/* Tab 4: Google Maps Live Radar (replaces components section) */}
           <button
             onClick={() => onTabChange('liveMap')}
-            className={`flex flex-col items-center justify-center min-w-[56px] py-1 transition-all ${
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 transition-all ${
               currentTab === 'liveMap'
                 ? 'text-[#0284C7] dark:text-[#38BDF8] scale-105 font-bold'
                 : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
             }`}
           >
-            <NavigationIcon size={22} />
-            <span className="text-[10px] font-headline font-semibold mt-1">
+            <NavigationIcon size={21} />
+            <span className="text-[10px] font-headline font-semibold mt-1 truncate max-w-full px-0.5">
               {language === 'en' ? 'Radar' : 'Radar'}
             </span>
           </button>

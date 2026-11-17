@@ -240,29 +240,29 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
           className="relative z-10 w-full max-w-4xl bg-white dark:bg-[#10192A] rounded-3xl border border-[#E1E6F0] dark:border-[#243248] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
         >
           {/* Header */}
-          <div className="px-6 py-4 border-b border-[#E1E6F0] dark:border-[#243248] flex items-center justify-between bg-slate-50/70 dark:bg-slate-900/60">
-            <div className="flex items-center gap-2.5">
-              <span className="font-mono-telemetry text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider">
+          <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#E1E6F0] dark:border-[#243248] flex items-center justify-between gap-2 bg-slate-50/70 dark:bg-slate-900/60">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0 flex-1">
+              <span className="font-mono-telemetry text-[11px] sm:text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider truncate max-w-full">
                 {t.createTripTitle}
               </span>
-              <span className="text-slate-300 dark:text-slate-700">·</span>
-              <span className="font-mono-telemetry text-xs text-slate-500">
+              <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">·</span>
+              <span className="font-mono-telemetry text-[11px] sm:text-xs text-slate-500 whitespace-nowrap">
                 {language === 'en' ? `Step ${step} of 3` : `Passo ${step} de 3`}
               </span>
             </div>
 
             <button
               onClick={onClose}
-              className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+              className="min-w-[40px] min-h-[40px] shrink-0 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
             >
               <X size={18} />
             </button>
           </div>
 
           {/* Body: Split View (Inputs on left, Live Google Maps Preview on right) */}
-          <div className="grid grid-cols-1 md:grid-cols-12 flex-1 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-12 flex-1 overflow-y-auto md:overflow-hidden">
             {/* LEFT: STEP FORM */}
-            <div className="md:col-span-7 p-6 overflow-y-auto space-y-5">
+            <div className="md:col-span-7 p-4 sm:p-6 md:overflow-y-auto space-y-5">
               {/* Step indicator */}
               <div className="flex items-center gap-2">
                 {[1, 2, 3].map((s) => (
@@ -309,15 +309,15 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
 
                   {/* DEPART ADDRESS WITH GOOGLE MAPS PLACES AUTOCOMPLETE & GPS BUTTON */}
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-mono-telemetry font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5 min-w-0">
+                      <label className="text-xs font-mono-telemetry font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider min-w-0">
                         {t.departAddressLabel}
                       </label>
                       <button
                         type="button"
                         onClick={handleUseCurrentLocation}
                         disabled={isLocating}
-                        className="text-xs font-semibold text-[#0284C7] dark:text-[#38BDF8] hover:underline flex items-center gap-1 active:scale-95 transition-all"
+                        className="text-xs font-semibold text-[#0284C7] dark:text-[#38BDF8] hover:underline inline-flex items-center gap-1 shrink-0 whitespace-nowrap active:scale-95 transition-all"
                       >
                         <NavigationIcon size={12} className={isLocating ? 'animate-spin' : ''} />
                         <span>{isLocating ? t.locatingAddress : t.useCurrentLocationBtn}</span>
@@ -336,6 +336,7 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
                       placeholder={t.departAddressPlaceholder}
                       value={departAddress}
                       language={language}
+                      respectBottomNav={false}
                       onChange={setDepartAddress}
                       onSelectPlace={(place: PlaceResult) => {
                         setDepartAddress(place.address);
@@ -357,6 +358,7 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
                       placeholder={t.destAddressPlaceholder}
                       value={destinationAddress}
                       language={language}
+                      respectBottomNav={false}
                       onChange={setDestinationAddress}
                       onSelectPlace={(place: PlaceResult) => {
                         setDestinationAddress(place.address);
@@ -403,18 +405,19 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
                     value={bufferMin}
                     onChange={setBufferMin}
                     label={t.smartBufferLabel}
+                    language={language}
                   />
 
-                  <div className="p-3.5 rounded-2xl bg-[#EBF1F9] dark:bg-[#1E293B] border border-[#E1E6F0] dark:border-[#334155] space-y-1">
-                    <div className="flex items-center justify-between font-mono-telemetry text-xs">
-                      <span className="text-slate-500 dark:text-slate-400">{t.calculatedDrivingTime}</span>
-                      <span className="font-bold text-slate-800 dark:text-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-[#EBF1F9] dark:bg-[#1E293B] border border-[#E1E6F0] dark:border-[#334155] space-y-1.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5 font-mono-telemetry text-xs">
+                      <span className="text-slate-500 dark:text-slate-400 min-w-0">{t.calculatedDrivingTime}</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap shrink-0">
                         {formatDuration(travelTimeMin)} ({distanceKm} km)
                       </span>
                     </div>
-                    <div className="flex items-center justify-between font-mono-telemetry text-xs">
-                      <span className="text-[#0284C7] dark:text-[#38BDF8]">{t.calculatedDepartureTime}</span>
-                      <span className="font-bold text-[#0284C7] dark:text-[#38BDF8] text-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5 font-mono-telemetry text-xs">
+                      <span className="text-[#0284C7] dark:text-[#38BDF8] min-w-0">{t.calculatedDepartureTime}</span>
+                      <span className="font-bold text-[#0284C7] dark:text-[#38BDF8] text-sm whitespace-nowrap shrink-0">
                         {calculatedDeparture}
                       </span>
                     </div>
@@ -434,16 +437,16 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-white dark:bg-[#131D2E] border border-[#E1E6F0] dark:border-[#2A374A] flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#131D2E] border border-[#E1E6F0] dark:border-[#2A374A] flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
                       <div className="p-2.5 rounded-xl bg-sky-100 dark:bg-sky-900/60 text-[#0284C7] dark:text-[#38BDF8] shrink-0">
-                        <Calendar size={22} />
+                        <Calendar size={20} />
                       </div>
-                      <div>
-                        <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white break-words">
                           {t.injectBlockLabel}
                         </h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 break-words">
                           {t.injectBlockDesc} ({calculatedDeparture} – {scheduledTime}).
                         </p>
                       </div>
@@ -452,19 +455,19 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
                       type="checkbox"
                       checked={injectCalendar}
                       onChange={(e) => setInjectCalendar(e.target.checked)}
-                      className="w-5 h-5 accent-[#29B6F6] rounded"
+                      className="w-5 h-5 accent-[#29B6F6] rounded shrink-0 mt-0.5"
                     />
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300">
                     <ShieldCheck size={18} className="text-emerald-600 shrink-0" />
-                    <span>{t.pushAlertScheduled} ({calculatedDeparture}).</span>
+                    <span className="min-w-0 break-words">{t.pushAlertScheduled} ({calculatedDeparture}).</span>
                   </div>
                 </div>
               )}
 
               {/* Step Navigation Controls */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                 {step > 1 ? (
                   <Button
                     variant="ghost"
@@ -501,16 +504,16 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
             </div>
 
             {/* RIGHT: REAL GOOGLE MAP PREVIEW & CALENDAR PREVIEW */}
-            <div className="md:col-span-5 bg-slate-50 dark:bg-slate-900/50 p-6 border-t md:border-t-0 md:border-l border-[#E1E6F0] dark:border-[#243248] flex flex-col justify-between overflow-y-auto space-y-4">
+            <div className="md:col-span-5 bg-slate-50 dark:bg-slate-900/50 p-4 sm:p-6 border-t md:border-t-0 md:border-l border-[#E1E6F0] dark:border-[#243248] flex flex-col justify-between md:overflow-y-auto space-y-4">
               <div className="space-y-4">
                 {/* REAL GOOGLE MAP VIEW OF CHOSEN PLACES */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono-telemetry text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <MapPin size={13} className="text-[#0284C7]" />
-                      {language === 'en' ? 'Google Maps Trajectory' : 'Traçado Google Maps'}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-mono-telemetry text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                      <MapPin size={13} className="text-[#0284C7] shrink-0" />
+                      <span className="truncate">{language === 'en' ? 'Google Maps Trajectory' : 'Traçado Google Maps'}</span>
                     </span>
-                    <span className="text-[10px] font-mono-telemetry text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-mono-telemetry text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">
                       Ao Vivo
                     </span>
                   </div>
@@ -528,15 +531,15 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsPreviewOpen(!isPreviewOpen)}
-                  className="w-full p-3 rounded-2xl bg-white dark:bg-[#131D2E] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between text-left hover:border-[#29B6F6] transition-all cursor-pointer"
+                  className="w-full p-3 rounded-2xl bg-white dark:bg-[#131D2E] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-2 text-left hover:border-[#29B6F6] transition-all cursor-pointer"
                   aria-expanded={isPreviewOpen}
                 >
-                  <div className="flex items-center gap-2">
-                    <Sparkles size={16} className="text-[#29B6F6]" />
-                    <span className="font-headline font-bold text-xs sm:text-sm text-[#0F172A] dark:text-white">
+                  <div className="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
+                    <Sparkles size={16} className="text-[#29B6F6] shrink-0" />
+                    <span className="font-headline font-bold text-xs sm:text-sm text-[#0F172A] dark:text-white break-words">
                       {t.livePreviewTitle}
                     </span>
-                    <span className="text-[10px] font-mono-telemetry px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 text-[#0284C7] dark:text-[#38BDF8]">
+                    <span className="text-[10px] font-mono-telemetry px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 text-[#0284C7] dark:text-[#38BDF8] whitespace-nowrap shrink-0">
                       {isPreviewOpen ? t.livePreviewOpen : t.livePreviewTapToOpen}
                     </span>
                   </div>
@@ -558,7 +561,7 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden space-y-3 pt-1"
                     >
-                      <div className="flex items-center justify-between px-1 text-[11px] font-mono-telemetry text-slate-500">
+                      <div className="flex flex-wrap items-center justify-between gap-1 px-1 text-[11px] font-mono-telemetry text-slate-500">
                         <span>Google Calendar Sync</span>
                         <span className="text-[#0284C7] dark:text-[#38BDF8] font-bold">
                           {language === 'en' ? 'Smart Injection' : 'Injeção Inteligente'}
@@ -573,14 +576,14 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
                           transition={{ repeat: Infinity, duration: 2.5 }}
                           className="p-3.5 rounded-xl bg-[#E1F5FE] dark:bg-[#003852] border-2 border-dashed border-[#29B6F6] shadow-sm space-y-1"
                         >
-                          <div className="flex items-center justify-between text-[#0284C7] dark:text-[#38BDF8]">
-                            <span className="font-bold text-[11px] flex items-center gap-1">
-                              <Car size={13} />
-                              {language === 'en' ? 'TRAVELING (DEPARTLY)' : 'EM DESLOCAÇÃO (DEPARTLY)'}
+                          <div className="flex flex-wrap items-center justify-between gap-1.5 text-[#0284C7] dark:text-[#38BDF8]">
+                            <span className="font-bold text-[11px] flex items-center gap-1 min-w-0">
+                              <Car size={13} className="shrink-0" />
+                              <span className="break-words">{language === 'en' ? 'TRAVELING (DEPARTLY)' : 'EM DESLOCAÇÃO (DEPARTLY)'}</span>
                             </span>
-                            <span className="font-bold text-xs">{calculatedDeparture} - {scheduledTime}</span>
+                            <span className="font-bold text-xs whitespace-nowrap shrink-0">{calculatedDeparture} - {scheduledTime}</span>
                           </div>
-                          <p className="text-[10px] text-sky-800 dark:text-sky-300 font-sans">
+                          <p className="text-[10px] text-sky-800 dark:text-sky-300 font-sans break-words">
                             {language === 'en'
                               ? `Auto block: ${travelTimeMin}m drive + ${bufferMin}m safety buffer.`
                               : `Bloqueio automático: ${travelTimeMin}m condução + ${bufferMin}m margem de segurança.`}
@@ -589,13 +592,13 @@ export const TripCreationScreen: React.FC<TripCreationScreenProps> = ({
 
                         {/* The Main Meeting Event */}
                         <div className="p-3.5 rounded-xl bg-white dark:bg-[#131D2E] border border-slate-300 dark:border-slate-700 shadow-sm space-y-1">
-                          <div className="flex items-center justify-between text-slate-800 dark:text-white">
-                            <span className="font-bold text-xs">
+                          <div className="flex flex-wrap items-center justify-between gap-1.5 text-slate-800 dark:text-white">
+                            <span className="font-bold text-xs min-w-0 break-words">
                               {title || (language === 'en' ? 'Client Meeting' : 'Reunião Comercial')}
                             </span>
-                            <span className="font-bold text-xs">{scheduledTime}</span>
+                            <span className="font-bold text-xs whitespace-nowrap shrink-0">{scheduledTime}</span>
                           </div>
-                          <p className="text-[11px] text-slate-500 font-sans">
+                          <p className="text-[11px] text-slate-500 font-sans break-words">
                             {destinationAddress || 'Endereço de Destino'}
                           </p>
                         </div>

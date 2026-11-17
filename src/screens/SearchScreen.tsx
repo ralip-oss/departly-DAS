@@ -98,7 +98,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
       </div>
 
       {/* Filter Chips Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      <div className="flex flex-wrap items-center gap-2 pb-1">
         <FilterChip
           label={t.allTrips}
           count={trips.length}
@@ -182,24 +182,24 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white truncate">
+                  <div className="flex items-center justify-between gap-2 min-w-0">
+                    <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white truncate min-w-0 flex-1">
                       {trip.title}
                     </h4>
-                    <span className="font-mono-telemetry text-[11px] font-bold text-[#0284C7] dark:text-[#38BDF8] shrink-0">
+                    <span className="font-mono-telemetry text-[11px] font-bold text-[#0284C7] dark:text-[#38BDF8] shrink-0 whitespace-nowrap">
                       {trip.scheduledTime}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5 truncate">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5 min-w-0">
                     <MapPin size={12} className="text-[#29B6F6] shrink-0" />
-                    <span>{trip.destinationAddress}</span>
+                    <span className="truncate">{trip.destinationAddress}</span>
                   </p>
 
-                  <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono-telemetry mt-1">
-                    <span>{language === 'en' ? 'Client' : 'Cliente'}: {trip.clientName}</span>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-400 font-mono-telemetry mt-1 min-w-0">
+                    <span className="break-words">{language === 'en' ? 'Client' : 'Cliente'}: {trip.clientName}</span>
                     <span>·</span>
-                    <span>{language === 'en' ? 'Departure' : 'Saída'}: {trip.departureTime}</span>
+                    <span className="whitespace-nowrap">{language === 'en' ? 'Departure' : 'Saída'}: {trip.departureTime}</span>
                   </div>
                 </div>
               </div>

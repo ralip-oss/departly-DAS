@@ -86,22 +86,45 @@ export const ArrivalPredictionWidget: React.FC<ArrivalPredictionWidgetProps> = (
   // Calculate live ETA
   // Live Travel Time = base travel time + traffic offset
   const liveDriveDurationMin = trip.travelTimeMin + trafficOffsetMin;
-  
+
   // Calculate ETA timestamp from current live clock
   const liveEtaDate = new Date(currentTime.getTime() + liveDriveDurationMin * 60 * 1000);
   const etaFormatted = `${String(liveEtaDate.getHours()).padStart(2, '0')}:${String(
     liveEtaDate.getMinutes()
   ).padStart(2, '0')}`;
 
-  // Time remaining until recommended departure
-  const [depHours, depMins] = trip.departureTime.split(':').map(Number);
+  // Minute-level comparison for departure window and meeting punctuality
+  const currentMinuteStamp = Math.floor(currentTime.getTime() / 60000);
+  const [depHours, depMins] = (trip.departureTime || '00:00').split(':').map(Number);
+  const hasValidDep = !isNaN(depHours) && !isNaN(depMins);
   const departureDate = new Date(currentTime);
-  departureDate.setHours(depHours, depMins, 0, 0);
-  const diffMs = departureDate.getTime() - currentTime.getTime();
-  const minutesUntilDeparture = Math.round(diffMs / 60000);
+  if (hasValidDep) {
+    departureDate.setHours(depHours, depMins, 0, 0);
+  }
+  const minutesUntilDeparture = hasValidDep
+    ? Math.floor(departureDate.getTime() / 60000) - currentMinuteStamp
+    : 0;
 
+  // Compare ETA against scheduled meeting time
+  const [schedHours, schedMins] = (trip.scheduledTime || '00:00').split(':').map(Number);
+  const hasValidSched = !isNaN(schedHours) && !isNaN(schedMins);
+  const meetingDate = new Date(currentTime);
+  if (hasValidSched) {
+    meetingDate.setHours(schedHours, schedMins, 0, 0);
+    // Handle midnight-crossing trips (e.g. departure 23:50, meeting 00:15)
+    if (hasValidDep && schedHours * 60 + schedMins < depHours * 60 + depMins) {
+      meetingDate.setDate(meetingDate.getDate() + 1);
+    }
+  }
+
+  const etaMinuteStamp = Math.floor(liveEtaDate.getTime() / 60000);
+  const meetingMinuteStamp = Math.floor(meetingDate.getTime() / 60000);
+
+  // Late badge if ETA is strictly after meeting time
+  const isLateByEta = hasValidSched && etaMinuteStamp > meetingMinuteStamp;
+  // User is late for departure if departure time has passed OR ETA already exceeds meeting time
+  const isUserLate = minutesUntilDeparture < 0 || isLateByEta;
   const isDelayRisk = trafficOffsetMin > 8;
-  const isTight = trafficOffsetMin > 0 && trafficOffsetMin <= 8;
 
   return (
     <div className="relative overflow-hidden p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-white via-white to-sky-50/50 dark:from-[#10192A] dark:via-[#10192A] dark:to-[#0A1220] border border-[#E1E6F0] dark:border-[#243248] shadow-sm space-y-3.5 select-none transition-all">
@@ -109,13 +132,13 @@ export const ArrivalPredictionWidget: React.FC<ArrivalPredictionWidgetProps> = (
       <div className="absolute top-0 right-0 w-44 h-44 bg-[#29B6F6]/10 dark:bg-[#29B6F6]/5 rounded-full blur-2xl pointer-events-none" />
 
       {/* Top Header Strip: Distance Matrix Badge & Live Ticker */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <span className="relative flex h-2 w-2">
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 min-w-0">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <span className="relative flex h-2 w-2 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0284C7] opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0284C7]" />
           </span>
-          <span className="font-mono-telemetry text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <span className="font-mono-telemetry text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider truncate">
             {isEn ? 'GOOGLE MAPS DISTANCE MATRIX // LIVE ETA' : 'GOOGLE MAPS DISTANCE MATRIX // ETA AO VIVO'}
           </span>
         </div>
@@ -123,107 +146,114 @@ export const ArrivalPredictionWidget: React.FC<ArrivalPredictionWidgetProps> = (
         <button
           onClick={handleRecalculate}
           disabled={isRecalculating}
-          className="text-[11px] font-mono-telemetry font-semibold text-[#0284C7] dark:text-[#38BDF8] hover:underline flex items-center gap-1 active:scale-95 transition-all"
+          className="text-[11px] font-mono-telemetry font-semibold text-[#0284C7] dark:text-[#38BDF8] hover:underline flex items-center gap-1 shrink-0 active:scale-95 transition-all whitespace-nowrap"
         >
           <RefreshCw size={11} className={isRecalculating ? 'animate-spin' : ''} />
           <span>{isEn ? 'Recalculate' : 'Recalcular'}</span>
         </button>
       </div>
 
-      {/* Main Metric Split: Real-Time ETA Hero Readout */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
+      {/* Main Metric Split: Real-Time ETA Hero Readout + Contained Departure Window */}
+      <div className="flex flex-col gap-3">
+        <div className="min-w-0">
           <span className="text-[10px] font-mono-telemetry uppercase tracking-wider text-slate-500 dark:text-slate-400 block font-semibold">
             {isEn ? 'PREDICTED ARRIVAL (ETA)' : 'PREVISÃO DE CHEGADA (ETA)'}
           </span>
-          <div className="flex items-baseline gap-2 mt-0.5">
+          <div className="flex flex-wrap items-center gap-2 mt-0.5">
             <span className="font-mono-telemetry font-bold text-3xl sm:text-4xl text-[#0F172A] dark:text-white tracking-tight">
               {etaFormatted}
             </span>
             <span
-              className={`font-mono-telemetry text-xs font-bold px-2 py-0.5 rounded-full border ${
-                isDelayRisk
-                  ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 border-rose-200 dark:border-rose-800'
-                  : isTight
-                  ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200'
-                  : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200'
+              className={`font-mono-telemetry text-xs font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${
+                isLateByEta
+                  ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800'
+                  : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
               }`}
             >
-              {isDelayRisk
-                ? `+${trafficOffsetMin}m ${isEn ? 'Delay' : 'Atraso'}`
-                : isTight
-                ? (isEn ? 'Tight' : 'À Justa')
+              {isLateByEta
+                ? (isEn ? 'Late' : 'Atrasado')
                 : (isEn ? 'On Time' : 'A Horas')}
             </span>
           </div>
 
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1 truncate">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1 min-w-0">
             <MapPin size={12} className="text-[#29B6F6] shrink-0" />
             <span className="truncate">{trip.destinationAddress}</span>
           </p>
         </div>
 
-        {/* Dynamic Departure Countdown Badge */}
-        <div className="text-right shrink-0">
-          <span className="font-mono-telemetry text-[9px] uppercase tracking-wider text-slate-400 block">
-            {isEn ? 'DEPARTURE IN' : 'SAÍDA EM'}
-          </span>
+        {/* Dynamic Departure Countdown Strip (Stacked cleanly inside the card so it never clips on phone screens) */}
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-3 py-2 rounded-2xl bg-slate-50/90 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 min-w-0">
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0">
+            <span className="font-mono-telemetry text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold whitespace-nowrap">
+              {isEn ? 'DEPARTURE IN' : 'SAÍDA EM'}
+            </span>
+            <span className="font-mono-telemetry text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap">
+              · {isEn ? `At ${trip.departureTime}` : `Às ${trip.departureTime}`}
+            </span>
+          </div>
+
           <span
-            className={`font-mono-telemetry font-bold text-xl block leading-tight ${
-              minutesUntilDeparture <= 15
+            className={`font-mono-telemetry font-bold text-sm sm:text-base leading-tight shrink-0 whitespace-nowrap ${
+              isUserLate
+                ? 'text-rose-600 dark:text-rose-400 animate-pulse'
+                : minutesUntilDeparture <= 15
                 ? 'text-[#FF6B57] animate-pulse'
                 : 'text-[#0284C7] dark:text-[#38BDF8]'
             }`}
           >
-            {minutesUntilDeparture > 0 ? (minutesUntilDeparture >= 60 ? formatDuration(minutesUntilDeparture) : `${minutesUntilDeparture}m`) : (isEn ? 'NOW' : 'AGORA')}
-          </span>
-          <span className="font-mono-telemetry text-[10px] text-slate-400 block mt-0.5">
-            {isEn ? `At ${trip.departureTime}` : `Às ${trip.departureTime}`}
+            {isUserLate
+              ? (isEn ? 'LATE' : 'ATRASO')
+              : minutesUntilDeparture > 0
+              ? (minutesUntilDeparture >= 60 ? formatDuration(minutesUntilDeparture) : `${minutesUntilDeparture}m`)
+              : (isEn ? 'NOW' : 'AGORA')}
           </span>
         </div>
       </div>
 
       {/* Distance Matrix Details Grid */}
-      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-2xl bg-white dark:bg-[#131D2E] border border-slate-200 dark:border-slate-800 text-center font-mono-telemetry">
-        <div>
-          <span className="text-[9px] text-slate-400 block uppercase">
+      <div className="grid grid-cols-3 gap-1.5 p-2 sm:p-2.5 rounded-2xl bg-white dark:bg-[#131D2E] border border-slate-200 dark:border-slate-800 text-center font-mono-telemetry">
+        <div className="min-w-0 px-0.5">
+          <span className="text-[9px] text-slate-400 block uppercase truncate">
             {isEn ? 'Matrix Dist' : 'Distância'}
           </span>
-          <span className="font-bold text-xs text-[#0F172A] dark:text-white">
+          <span className="font-bold text-[11px] sm:text-xs text-[#0F172A] dark:text-white block break-words">
             {trip.distanceKm} km
           </span>
         </div>
-        <div className="border-x border-slate-200 dark:border-slate-800">
-          <span className="text-[9px] text-[#0284C7] dark:text-[#38BDF8] block uppercase font-semibold">
+        <div className="min-w-0 px-1 border-x border-slate-200 dark:border-slate-800">
+          <span className="text-[9px] text-[#0284C7] dark:text-[#38BDF8] block uppercase font-semibold truncate">
             {isEn ? 'Live Drive' : 'Condução'}
           </span>
-          <span className="font-bold text-xs text-[#0284C7] dark:text-[#38BDF8]">
+          <span className="font-bold text-[11px] sm:text-xs text-[#0284C7] dark:text-[#38BDF8] block break-words">
             {formatDuration(liveDriveDurationMin)}
           </span>
         </div>
-        <div>
-          <span className="text-[9px] text-slate-400 block uppercase">
+        <div className="min-w-0 px-0.5">
+          <span className="text-[9px] text-slate-400 block uppercase truncate">
             {isEn ? 'Meeting' : 'Reunião'}
           </span>
-          <span className="font-bold text-xs text-[#0F172A] dark:text-white">
+          <span className="font-bold text-[11px] sm:text-xs text-[#0F172A] dark:text-white block break-words">
             {trip.scheduledTime}
           </span>
         </div>
       </div>
 
-      {/* Traffic Warning Alert & Quick Voice Action if Delayed */}
-      {isDelayRisk && onOpenVoiceHUD && (
-        <div className="p-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400 text-xs font-semibold">
+      {/* Traffic Warning Alert & Quick Voice Action if Delayed or Late */}
+      {(isDelayRisk || isLateByEta) && onOpenVoiceHUD && (
+        <div className="p-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400 text-xs font-semibold min-w-0 flex-1">
             <AlertTriangle size={15} className="shrink-0" />
-            <span className="line-clamp-1">
-              {isEn ? 'Heavy traffic corridor detected.' : 'Congestionamento severo no corredor.'}
+            <span className="break-words leading-snug">
+              {isLateByEta
+                ? (isEn ? 'ETA is past scheduled meeting time.' : 'ETA ultrapassa a hora da reunião.')
+                : (isEn ? 'Heavy traffic corridor detected.' : 'Congestionamento severo no corredor.')}
             </span>
           </div>
 
           <button
             onClick={() => onOpenVoiceHUD(trip)}
-            className="px-2.5 py-1 rounded-xl bg-[#FF6B57] text-white font-headline text-xs font-bold flex items-center gap-1 shadow-sm shrink-0 active:scale-95 transition-all"
+            className="px-2.5 py-1 rounded-xl bg-[#FF6B57] text-white font-headline text-xs font-bold flex items-center gap-1 shadow-sm shrink-0 whitespace-nowrap active:scale-95 transition-all"
           >
             <Mic size={12} />
             <span>{isEn ? 'Voice Alert' : 'Aviso IA'}</span>

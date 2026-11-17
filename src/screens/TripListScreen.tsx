@@ -61,9 +61,9 @@ export const TripListScreen: React.FC<TripListScreenProps> = ({
   return (
     <div className="w-full flex flex-col gap-4 select-none pb-8">
       {/* Header and Add Action */}
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <span className="font-mono-telemetry text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider block">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <span className="font-mono-telemetry text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider block break-words">
             {language === 'en' ? 'OPERATIONAL SCHEDULE // LEAVY ENGINE' : 'AGENDA OPERACIONAL // LEAVY ENGINE'}
           </span>
           <h1 className="font-headline font-bold text-2xl sm:text-3xl text-[#0F172A] dark:text-white mt-1">
@@ -79,6 +79,7 @@ export const TripListScreen: React.FC<TripListScreenProps> = ({
         <Button
           variant="primary"
           size="sm"
+          className="shrink-0"
           icon={<Plus size={16} />}
           onClick={onOpenNewTrip}
         >
@@ -100,7 +101,7 @@ export const TripListScreen: React.FC<TripListScreenProps> = ({
         </div>
 
         {trips.length > 0 && (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <div className="flex flex-wrap items-center gap-1.5 pb-1">
             <FilterChip
               label={t.allTrips}
               count={trips.length}
@@ -179,51 +180,51 @@ export const TripListScreen: React.FC<TripListScreenProps> = ({
                 <div className="flex flex-col gap-3">
                   {/* Row 1: Time pill & Title */}
                   <div className="flex items-start gap-3">
-                    <div className="text-center min-w-[68px] p-2 rounded-2xl bg-[#EBF1F9] dark:bg-[#1E293B] border border-[#E1E6F0] dark:border-[#334155] shrink-0">
+                    <div className="text-center min-w-[64px] p-2 rounded-2xl bg-[#EBF1F9] dark:bg-[#1E293B] border border-[#E1E6F0] dark:border-[#334155] shrink-0">
                       <span className="font-mono-telemetry font-bold text-sm text-[#0F172A] dark:text-white block">
                         {trip.scheduledTime}
                       </span>
-                      <span className="font-mono-telemetry text-[9px] text-[#0284C7] dark:text-[#38BDF8] font-bold block mt-0.5">
-                        SAÍDA {trip.departureTime}
+                      <span className="font-mono-telemetry text-[9px] text-[#0284C7] dark:text-[#38BDF8] font-bold block mt-0.5 whitespace-nowrap">
+                        {language === 'en' ? 'DEP' : 'SAÍDA'} {trip.departureTime}
                       </span>
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                         <h3
                           onClick={() => onSelectTrip(trip)}
-                          className="font-headline font-bold text-base text-[#0F172A] dark:text-white hover:text-[#0284C7] dark:hover:text-[#38BDF8] cursor-pointer transition-colors truncate"
+                          className="font-headline font-bold text-base text-[#0F172A] dark:text-white hover:text-[#0284C7] dark:hover:text-[#38BDF8] cursor-pointer transition-colors break-words max-w-full"
                         >
                           {trip.title}
                         </h3>
                         {trip.calendarBlockInjected && (
-                          <span className="px-1.5 py-0.2 rounded-full font-mono-telemetry text-[9px] bg-sky-50 dark:bg-sky-950/60 text-[#0284C7] dark:text-[#38BDF8] border border-sky-200 dark:border-sky-800 font-semibold flex items-center gap-0.5">
-                            <ShieldCheck size={9} /> BLOCO
+                          <span className="px-2 py-0.5 rounded-full font-mono-telemetry text-[9px] bg-sky-50 dark:bg-sky-950/60 text-[#0284C7] dark:text-[#38BDF8] border border-sky-200 dark:border-sky-800 font-semibold inline-flex items-center gap-0.5 whitespace-nowrap shrink-0">
+                            <ShieldCheck size={9} /> {language === 'en' ? 'BLOCK' : 'BLOCO'}
                           </span>
                         )}
                         {isHeavyTraffic && (
-                          <span className="px-1.5 py-0.2 rounded-full font-mono-telemetry text-[9px] bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-bold flex items-center gap-0.5">
-                            <AlertTriangle size={9} /> +14m TRÂNSITO
+                          <span className="px-2 py-0.5 rounded-full font-mono-telemetry text-[9px] bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-bold inline-flex items-center gap-0.5 whitespace-nowrap shrink-0">
+                            <AlertTriangle size={9} /> {t.trafficDelayNotice}
                           </span>
                         )}
                       </div>
 
-                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1 truncate">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1 min-w-0">
                         <MapPin size={12} className="text-[#29B6F6] shrink-0" />
                         <span className="truncate">{trip.destinationAddress}</span>
                       </p>
 
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono-telemetry mt-1">
-                        <span>{language === 'en' ? 'Client' : 'Cliente'}: {trip.clientName}</span>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-400 font-mono-telemetry mt-1 min-w-0">
+                        <span className="break-words">{language === 'en' ? 'Client' : 'Cliente'}: {trip.clientName}</span>
                         <span>·</span>
-                        <span>+{formatDuration(trip.smartBufferMin)} {t.margin}</span>
+                        <span className="whitespace-nowrap">+{formatDuration(trip.smartBufferMin)} {t.margin}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Row 2: Touch action buttons */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                    <div>
+                  {/* Row 2: Touch action buttons (wrap cleanly on narrow screens) */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-100 dark:border-slate-800/80">
+                    <div className="shrink-0">
                       {onDeleteTrip && (
                         <button
                           type="button"
@@ -237,7 +238,7 @@ export const TripListScreen: React.FC<TripListScreenProps> = ({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center justify-end gap-1.5 flex-1 min-w-0">
                       <Button
                         variant="ghost"
                         size="sm"

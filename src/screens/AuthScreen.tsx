@@ -184,16 +184,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#F5F7FB] dark:bg-[#070D18] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col justify-between p-6 sm:p-10 overflow-hidden select-none">
+    <div className="relative min-h-screen w-full bg-[#F5F7FB] dark:bg-[#070D18] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col justify-between p-4 sm:p-10 overflow-hidden select-none">
       {/* Ambient Glow */}
       <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#29B6F6]/15 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Top Navigation Row */}
-      <div className="relative z-10 flex items-center justify-between w-full max-w-md mx-auto">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 w-full max-w-md mx-auto">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1.5 text-xs font-headline font-semibold text-slate-600 dark:text-slate-300 hover:text-[#0284C7] dark:hover:text-[#38BDF8] py-2 px-3 rounded-full bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-headline font-semibold text-slate-600 dark:text-slate-300 hover:text-[#0284C7] dark:hover:text-[#38BDF8] py-2 px-3 rounded-full bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 transition-colors shrink-0"
         >
           <ArrowLeft size={14} />
           {isEn ? 'Back' : 'Voltar'}
@@ -206,9 +206,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="relative z-10 w-full max-w-md mx-auto my-auto py-6"
+        className="relative z-10 w-full max-w-md mx-auto my-auto py-5 sm:py-6"
       >
-        <div className="bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
+        <div className="bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] rounded-3xl p-4 sm:p-7 shadow-xl space-y-5">
           {/* Segmented Mode Switcher */}
           <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <button
@@ -217,7 +217,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 setMode('register');
                 setErrorMsg(null);
               }}
-              className={`py-2 px-3 rounded-xl font-headline font-semibold text-xs transition-all ${
+              className={`min-w-0 py-2 px-2 sm:px-3 rounded-xl font-headline font-semibold text-[11px] sm:text-xs leading-tight transition-all ${
                 mode === 'register'
                   ? 'bg-white dark:bg-[#1E293B] text-[#0F172A] dark:text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -231,7 +231,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 setMode('login');
                 setErrorMsg(null);
               }}
-              className={`py-2 px-3 rounded-xl font-headline font-semibold text-xs transition-all ${
+              className={`min-w-0 py-2 px-2 sm:px-3 rounded-xl font-headline font-semibold text-[11px] sm:text-xs leading-tight transition-all ${
                 mode === 'login'
                   ? 'bg-white dark:bg-[#1E293B] text-[#0F172A] dark:text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -311,25 +311,25 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             )}
 
             {/* Password Input with visibility toggle */}
-            <div className="relative">
-              <FloatingInput
-                label={isEn ? 'Password' : 'Palavra-passe'}
-                placeholder="••••••••"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                icon={<Lock size={16} />}
-                autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-3.5 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full"
-                aria-label={isEn ? 'Toggle password visibility' : 'Mostrar/ocultar palavra-passe'}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
+            <FloatingInput
+              label={isEn ? 'Password' : 'Palavra-passe'}
+              placeholder="••••••••"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              icon={<Lock size={16} />}
+              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+              rightSlot={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full"
+                  aria-label={isEn ? 'Toggle password visibility' : 'Mostrar/ocultar palavra-passe'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              }
+            />
 
             {errorMsg && (
               <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 space-y-2">

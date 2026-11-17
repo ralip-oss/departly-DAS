@@ -207,17 +207,17 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
   };
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className="space-y-4 pb-16">
       {/* SCREEN HEADER */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-1.5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5">
             <span className="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/70 text-[#0284C7] dark:text-[#38BDF8] font-mono-telemetry text-[9px] font-bold uppercase tracking-wider">
               GOOGLE MAPS PLATFORM
             </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           </div>
-          <h1 className="font-headline font-bold text-xl text-[#0F172A] dark:text-white mt-1">
+          <h1 className="font-headline font-bold text-xl text-[#0F172A] dark:text-white mt-1 break-words">
             {isEn ? 'Live Transit Radar' : 'Radar de Trajeto em Tempo Real'}
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -229,7 +229,7 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
 
         <button
           onClick={onOpenNewTrip}
-          className="p-2.5 rounded-2xl bg-gradient-to-tr from-[#0284C7] to-[#29B6F6] text-white shadow-md shadow-[#29B6F6]/20 active:scale-95 transition-all"
+          className="p-2.5 shrink-0 rounded-2xl bg-gradient-to-tr from-[#0284C7] to-[#29B6F6] text-white shadow-md shadow-[#29B6F6]/20 active:scale-95 transition-all"
           title={t.newTripBtn}
         >
           <Plus size={18} />
@@ -274,7 +274,7 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
         {/* FLOATING PUNCTUALITY STATUS OVERLAY ON THE MAP */}
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
           <div
-            className={`px-3 py-1.5 rounded-2xl backdrop-blur-md border shadow-lg flex items-center gap-2 pointer-events-auto transition-all ${
+            className={`max-w-full min-w-0 px-3 py-1.5 rounded-2xl backdrop-blur-md border shadow-lg flex items-center gap-2 pointer-events-auto transition-all ${
               punctuality.status === 'late'
                 ? 'bg-rose-950/85 border-rose-500/50 text-rose-200'
                 : punctuality.status === 'early'
@@ -283,7 +283,7 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
             }`}
           >
             <span
-              className={`w-2.5 h-2.5 rounded-full animate-ping ${
+              className={`w-2.5 h-2.5 shrink-0 rounded-full animate-ping ${
                 punctuality.status === 'late'
                   ? 'bg-rose-400'
                   : punctuality.status === 'early'
@@ -291,8 +291,8 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
                   : 'bg-[#38BDF8]'
               }`}
             />
-            <div>
-              <span className="font-mono-telemetry text-[11px] font-bold uppercase tracking-wider block">
+            <div className="min-w-0 flex-1">
+              <span className="font-mono-telemetry text-[10px] sm:text-[11px] font-bold uppercase tracking-wider block break-words leading-snug">
                 {punctuality.label} // {punctuality.desc}
               </span>
             </div>
@@ -304,11 +304,11 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
       <div className="p-4 rounded-3xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] shadow-sm space-y-4">
         {/* Origin -> Destination Trip Details */}
         <div className="space-y-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center justify-between">
-            <span className="font-mono-telemetry text-[10px] uppercase font-bold text-slate-400">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 min-w-0">
+            <span className="font-mono-telemetry text-[10px] uppercase font-bold text-slate-400 shrink-0">
               {isEn ? 'ACTIVE ROUTE TRAJECTORY' : 'TRAJETÓRIA DO TRAJETO'}
             </span>
-            <span className="font-mono-telemetry text-xs font-bold text-[#0284C7] dark:text-[#38BDF8]">
+            <span className="font-mono-telemetry text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] min-w-0 max-w-full truncate">
               {clientOrTitle}
             </span>
           </div>
@@ -347,53 +347,55 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
         </div>
 
         {/* TIME LEFT & ETA GRID */}
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span className="font-mono-telemetry text-[9px] uppercase text-slate-400 block font-semibold">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center">
+          <div className="p-2 sm:p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 min-w-0">
+            <span className="font-mono-telemetry text-[9px] uppercase text-slate-400 block font-semibold truncate">
               {isEn ? 'Travel Time' : 'Tempo Viagem'}
             </span>
-            <span className="font-mono-telemetry font-bold text-sm text-[#0F172A] dark:text-white mt-0.5 block">
+            <span className="font-mono-telemetry font-bold text-xs sm:text-sm text-[#0F172A] dark:text-white mt-0.5 block break-words">
               {formatDuration(currentTravelTimeMin)}
             </span>
-            <span className="text-[10px] text-slate-400 font-mono-telemetry">
+            <span className="text-[10px] text-slate-400 font-mono-telemetry block truncate">
               {currentDistanceKm} km
             </span>
           </div>
 
-          <div className="p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-900">
-            <span className="font-mono-telemetry text-[9px] uppercase text-[#0284C7] dark:text-[#38BDF8] block font-semibold">
+          <div className="p-2 sm:p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-900 min-w-0">
+            <span className="font-mono-telemetry text-[9px] uppercase text-[#0284C7] dark:text-[#38BDF8] block font-semibold truncate">
               {isEn ? 'Arrival ETA' : 'Chegada ETA'}
             </span>
-            <span className="font-mono-telemetry font-bold text-sm text-[#0284C7] dark:text-[#38BDF8] mt-0.5 block">
+            <span className="font-mono-telemetry font-bold text-xs sm:text-sm text-[#0284C7] dark:text-[#38BDF8] mt-0.5 block">
               {punctuality.etaStr}
             </span>
-            <span className="text-[10px] text-sky-700 dark:text-sky-300 font-mono-telemetry font-medium">
-              {punctuality.diffMin >= 0 ? `+${punctuality.diffMin}m margem` : `${punctuality.diffMin}m atraso`}
+            <span className="text-[9px] sm:text-[10px] text-sky-700 dark:text-sky-300 font-mono-telemetry font-medium block break-words leading-tight">
+              {punctuality.diffMin >= 0
+                ? `+${punctuality.diffMin}m ${isEn ? 'buffer' : 'margem'}`
+                : `${punctuality.diffMin}m ${isEn ? 'late' : 'atraso'}`}
             </span>
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span className="font-mono-telemetry text-[9px] uppercase text-slate-400 block font-semibold">
+          <div className="p-2 sm:p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 min-w-0">
+            <span className="font-mono-telemetry text-[9px] uppercase text-slate-400 block font-semibold truncate">
               {isEn ? 'Meeting Start' : 'Hora Reunião'}
             </span>
-            <span className="font-mono-telemetry font-bold text-sm text-[#0F172A] dark:text-white mt-0.5 block">
+            <span className="font-mono-telemetry font-bold text-xs sm:text-sm text-[#0F172A] dark:text-white mt-0.5 block">
               {scheduledTimeStr}
             </span>
-            <span className="text-[10px] text-slate-400 font-mono-telemetry">
+            <span className="text-[10px] text-slate-400 font-mono-telemetry block break-words">
               +{formatDuration(smartBuffer)}
             </span>
           </div>
         </div>
 
         {/* TRAFFIC TELEMETRY METERS */}
-        <div className="space-y-2 p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 font-mono-telemetry">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-semibold">
-              <Activity size={14} className="text-[#0284C7]" />
-              {isEn ? 'Road Congestion Index' : 'Índice de Congestionamento'}
+        <div className="space-y-2 p-3 sm:p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 font-mono-telemetry">
+          <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
+            <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-semibold min-w-0">
+              <Activity size={14} className="text-[#0284C7] shrink-0" />
+              <span className="break-words">{isEn ? 'Road Congestion Index' : 'Índice de Congestionamento'}</span>
             </span>
             <span
-              className={`font-bold ${
+              className={`font-bold shrink-0 whitespace-nowrap ${
                 traffic.congestionPct > 70
                   ? 'text-rose-500'
                   : traffic.congestionPct > 35
@@ -418,19 +420,20 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
             />
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
             <span>{isEn ? 'Estimated Speed:' : 'Velocidade Média:'} {traffic.avgSpeedKmh} km/h</span>
             <span>{isEn ? 'Telemetry:' : 'Telemetria:'} Google Maps Live</span>
           </div>
         </div>
 
         {/* ACTION BUTTONS */}
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="flex flex-wrap gap-2 pt-1">
           {activeTrip ? (
             <>
               <Button
                 variant="primary"
                 size="sm"
+                className="flex-1 min-w-[125px]"
                 icon={<Navigation size={14} />}
                 onClick={() => onMarkDeparted(activeTrip.id)}
               >
@@ -439,6 +442,7 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
               <Button
                 variant="urgent"
                 size="sm"
+                className="flex-1 min-w-[125px]"
                 icon={<Mic size={14} />}
                 onClick={() => onOpenVoiceHUD(activeTrip)}
               >
@@ -446,29 +450,27 @@ export const LiveMapScreen: React.FC<LiveMapScreenProps> = ({
               </Button>
             </>
           ) : (
-            <>
-              <Button
-                variant="primary"
-                size="sm"
-                icon={<Plus size={14} />}
-                onClick={onOpenNewTrip}
-                className="col-span-2"
-              >
-                {isEn ? 'Add Trip to Agenda' : 'Adicionar Trajeto à Agenda'}
-              </Button>
-            </>
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<Plus size={14} />}
+              onClick={onOpenNewTrip}
+              className="w-full"
+            >
+              {isEn ? 'Add Trip to Agenda' : 'Adicionar Trajeto à Agenda'}
+            </Button>
           )}
         </div>
       </div>
 
       {/* QUICK ROUTE TESTING SIMULATOR (WITH REAL GOOGLE MAPS PLACES SEARCH) */}
       <div className="p-4 rounded-3xl bg-white dark:bg-[#10192A] border border-[#E1E6F0] dark:border-[#243248] shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="font-mono-telemetry text-xs font-bold text-[#0F172A] dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-            <Compass size={15} className="text-[#0284C7]" />
-            {isEn ? 'Test Any Custom Route with Google Maps' : 'Simular Outro Trajeto com Google Maps'}
+        <div className="flex flex-wrap items-center justify-between gap-1.5">
+          <span className="font-mono-telemetry text-xs font-bold text-[#0F172A] dark:text-white uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+            <Compass size={15} className="text-[#0284C7] shrink-0" />
+            <span className="break-words">{isEn ? 'Test Any Custom Route with Google Maps' : 'Simular Outro Trajeto com Google Maps'}</span>
           </span>
-          <span className="text-[10px] font-mono-telemetry text-slate-400">
+          <span className="text-[10px] font-mono-telemetry text-slate-400 shrink-0 whitespace-nowrap">
             {isEn ? 'Places API Active' : 'Places API Ativo'}
           </span>
         </div>

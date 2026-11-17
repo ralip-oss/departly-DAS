@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChronoState } from '../types';
+import { AppLanguage, ChronoState } from '../types';
 import {
   Compass,
   AlertTriangle,
@@ -20,6 +20,8 @@ interface ChronoPulseProps {
   state?: ChronoState;
   size?: 'sm' | 'md' | 'lg' | 'hero';
   countdownMinutes?: number;
+  isLate?: boolean;
+  language?: AppLanguage;
   cycleMapIcons?: boolean;
   label?: string;
   sublabel?: string;
@@ -43,6 +45,8 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
   state = 'calm',
   size = 'md',
   countdownMinutes,
+  isLate = false,
+  language = 'pt',
   cycleMapIcons = false,
   label,
   sublabel,
@@ -50,6 +54,7 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
   onClick,
   className = '',
 }) => {
+  const isEn = language === 'en';
   const [rotation, setRotation] = useState(0);
   const [iconIndex, setIconIndex] = useState(0);
 
@@ -321,11 +326,15 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
                 className="flex flex-col items-center justify-center text-rose-500"
               >
                 <AlertTriangle size={config.iconSize} />
-                {countdownMinutes !== undefined && (
+                {isLate ? (
+                  <span className="font-mono-telemetry font-bold text-[11px] uppercase tracking-wider text-rose-600 dark:text-rose-400 leading-tight mt-0.5">
+                    {isEn ? 'LATE' : 'ATRASO'}
+                  </span>
+                ) : countdownMinutes !== undefined ? (
                   <span className={`font-mono-telemetry font-bold ${config.textSize} text-rose-600 dark:text-rose-400 leading-tight mt-0.5`}>
                     +{countdownMinutes}m
                   </span>
-                )}
+                ) : null}
               </motion.div>
             ) : state === 'empty' ? (
               <motion.div
@@ -347,7 +356,7 @@ export const ChronoPulse: React.FC<ChronoPulseProps> = ({
                 {countdownMinutes !== undefined ? (
                   <>
                     <span className="font-mono-telemetry text-[10px] tracking-wider uppercase text-slate-400 font-medium">
-                      SAÍDA EM
+                      {isLate ? (isEn ? 'LATE' : 'ATRASO') : (isEn ? 'DEPART IN' : 'SAÍDA EM')}
                     </span>
                     <span className={`font-mono-telemetry font-bold ${config.textSize} text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-none`}>
                       {countdownMinutes}

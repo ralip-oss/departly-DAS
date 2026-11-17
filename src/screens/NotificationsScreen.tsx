@@ -58,12 +58,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   return (
     <div className="w-full flex flex-col gap-6 select-none">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="min-w-0">
           <span className="font-mono-telemetry text-xs font-bold text-[#0284C7] dark:text-[#38BDF8] uppercase tracking-wider block">
             {language === 'en' ? 'ALERTS & TELEMETRY CENTER' : 'CENTRO DE ALERTAS & TELEMETRIA'}
           </span>
-          <h1 className="font-headline font-bold text-2xl sm:text-3xl text-[#0F172A] dark:text-white mt-1">
+          <h1 className="font-headline font-bold text-2xl sm:text-3xl text-[#0F172A] dark:text-white mt-1 break-words">
             {t.notificationsHeader}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -74,6 +74,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
         <Button
           variant="secondary"
           size="sm"
+          className="self-start sm:self-auto shrink-0"
           icon={<Check size={14} />}
           onClick={onMarkAllAsRead}
         >
@@ -82,7 +83,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
       </div>
 
       {/* Filter Chips */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <FilterChip
           label={t.allNotifications}
           count={notifications.length}
@@ -158,16 +159,16 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                        <h4 className="font-headline font-bold text-sm text-[#0F172A] dark:text-white min-w-0 break-words">
                           {item.title}
                         </h4>
-                        <span className="font-mono-telemetry text-[11px] text-slate-400 shrink-0">
+                        <span className="font-mono-telemetry text-[11px] text-slate-400 shrink-0 whitespace-nowrap">
                           {item.timestamp}
                         </span>
                       </div>
 
-                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed break-words">
                         {item.message}
                       </p>
 
